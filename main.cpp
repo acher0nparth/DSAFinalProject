@@ -34,7 +34,7 @@ public:
         show_number = num;
     }
     Question(string c, string ad, string q, string ans, string r, string num)
-    { //constructor for Final Jeopardy Questions and Tiebreakers so the value is correctly handled
+    { //constructor for Final Jeopardy Questions and Tiebreakers so the null value is correctly handled
         category = c;
         air_date = ad;
         question = q;
@@ -54,7 +54,7 @@ void prettyFile() //turns the messy questions file into a nice easy to read json
     o << setw(4) << j << endl;
 }
 
-void printFile(vector<Question> &questions)
+void readFile(vector<Question> &questions)
 {
     ifstream inFile("questions.json");
     json j;
@@ -67,13 +67,14 @@ void printFile(vector<Question> &questions)
         //each index is a separate question
     }
     // cout << partial.size() << endl;
-    for (string s : partial)
+    for (string s : partial) //I can't decide if this parsing solution is very elegant or very bad. But it works!
     {
         int start = s.find("\":\"");
         int end = s.find("\":\"", start + 1);
         string date = s.substr(start + 3, end - start - 12);
         //  cout << date << endl;
         //this logic should work for all of the strings, just updating the -12 value to match the length of the key field
+        //this will allow us to dynamically find the substrings based upon their location relative to the keys
 
         start = end;
         end = s.find("\":\"", start + 1);
@@ -90,7 +91,8 @@ void printFile(vector<Question> &questions)
         string que = s.substr(start + 4, end - start - 13);
         //cout << que << endl;
 
-        if (que.find("j-archive") != string::npos){ //this skips any of the video/picture questions with links
+        if (que.find("j-archive") != string::npos)
+        { //this skips any of the video/picture questions with links
             continue;
         }
 
@@ -104,18 +106,21 @@ void printFile(vector<Question> &questions)
         string show = s.substr(start + 3, 4); //assuming that all show numbers will be four digits long, which I think is true
         // cout << show << endl;
 
-        if (round == "Final Jeopardy!" || round == "Tiebreaker")
-        { //deals with the fact that these have null values
+        if (round == "Final Jeopardy!" || round == "Tiebreaker") //deals with the fact that these have null values
+        {
             questions.push_back(Question(cat, date, que, ans, round, show));
             continue;
         }
+        else
+        {
 
-        start = s.find("$", end);
-        end = s.find("}", start + 1);
-        string val = s.substr(start, end - start - 1);
-        // cout << val << endl;
+            start = s.find("$", end);
+            end = s.find("}", start + 1);
+            string val = s.substr(start, end - start - 1);
+            // cout << val << endl;
 
-        questions.push_back(Question(cat, date, que, val, ans, round, show));
+            questions.push_back(Question(cat, date, que, val, ans, round, show));
+        }
     }
 }
 
@@ -251,9 +256,10 @@ int main()
     //     }
     // }
     vector<Question> questions;
-    printFile(questions);
-    cout << "made it!" << endl;
-    cout << questions.size();
+    cout << "inital vector size: " << questions.size() << endl;
+    readFile(questions);
+    cout << "questions PROBABLY successfully parsed from the json file into a vector of Question objects" << endl;
+    cout << "vector size after reading file: " << questions.size() << endl;
     // int in;
     // cout << "Welcome to the Jeopardy! Simulator\n1. Practice by Category\n";
     // cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
@@ -280,3 +286,8 @@ int main()
     // }
     return 0;
 }
+
+// TODO:
+// - FIGURE OUT A WAY TO HANDLE THE DAILY DOUBLES, OR DECIDE IF THEY EVEN NEED TO BE HANDLED. I THINK IT IS A LIMITATION
+// OF THE DATASET ITSELF, AS THERE IS NO WAY TO TELL OTHER THAN ANALYZING THE DOLLAR VALUE OF THE QUESTION FOR IRREGULARITIES.
+// MAYBE ADD THIS AS A LIMITATION, EITHER AS A DISCLOSURE WITHIN THE PROGRAM ITSELF OR THE DOCUMENTATION.

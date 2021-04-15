@@ -1,49 +1,13 @@
 #include <iostream>
 #include <iomanip>
-#include <string>
+#include "question.h"
 #include <fstream>
-#include <unordered_map>
-#include <map>
 #include <vector>
-#include <iterator>
 #include <sstream>
-#include <algorithm>
 #include "json.hpp"
+#include <chrono>
 using namespace std;
 using json = nlohmann::json;
-
-class Question
-{
-    string category;
-    string air_date;
-    string question;
-    string value;
-    string answer;
-    string round;
-    string show_number;
-
-public:
-    Question(string c, string ad, string q, string v, string ans, string r, string num)
-    {
-        category = c;
-        air_date = ad;
-        question = q;
-        value = v;
-        answer = ans;
-        round = r;
-        show_number = num;
-    }
-    Question(string c, string ad, string q, string ans, string r, string num)
-    { //constructor for Final Jeopardy Questions and Tiebreakers so the null value is correctly handled
-        category = c;
-        air_date = ad;
-        question = q;
-        value = "n/a";
-        answer = ans;
-        round = r;
-        show_number = num;
-    }
-};
 
 void prettyFile() //turns the messy questions file into a nice easy to read json file
 {
@@ -108,7 +72,11 @@ void readFile(vector<Question> &questions)
 
         if (round == "Final Jeopardy!" || round == "Tiebreaker") //deals with the fact that these have null values
         {
-            questions.push_back(Question(cat, date, que, ans, round, show));
+            Question temp = Question(cat, date, que, ans, round, show);
+            // cout << temp.getQuestion() << endl;
+            // cout << temp.getValue() << endl;
+            questions.push_back(temp);
+
             continue;
         }
         else
@@ -116,178 +84,143 @@ void readFile(vector<Question> &questions)
 
             start = s.find("$", end);
             end = s.find("}", start + 1);
-            string val = s.substr(start, end - start - 1);
-            // cout << val << endl;
+            string val = s.substr(start + 1, end - start - 2);
+            //cout << val << endl;
+            for (int i = 0, len = val.size(); i < len; i++)
+            {
+                // check whether parsing character is punctuation or not
+                if (ispunct(val[i]))
+                {
+                    val.erase(i--, 1);
+                    len = val.size();
+                }
+            }
+            int value = stoi(val);
 
-            questions.push_back(Question(cat, date, que, val, ans, round, show));
+            questions.push_back(Question(cat, date, que, value, ans, round, show));
         }
+    }
+}
+
+int menu()
+{
+    int option = -1;
+    cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice by Category\n";
+    cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
+    cout << "4. Random Question\n5. Lifetime Statistics\n6. Sorting Algorithm Performance\n7. Exit\n";
+    cin >> option;
+    while (option > 7 || option < 1)
+    {
+        cout << "Please enter a valid menu selection!" << endl;
+        cin >> option;
+    }
+    return option;
+}
+void swap(vector<Question> &arr, int a, int b)
+{
+    Question temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+}
+int partition(vector<Question> &questions, int left, int right)
+{
+    int pivotIndex = left + (right - left) / 2; //selects middle index as the pivot
+    int pivotValue = questions[pivotIndex].getValue();
+    int up = left, down = right;
+    while (up <= down)
+    {
+        while (questions[up].getValue() < pivotValue)
+        { //iterate until up is greater than the pivot
+            up++;
+        }
+        while (questions[down].getValue() > pivotValue)
+        { //iterate until down is less than the pivot
+            down--;
+        }
+        if (up <= down)
+        {
+            swap(questions, up, down);
+            up++;
+            down--;
+        }
+    }
+    return up;
+}
+void quickSort(vector<Question> &questions, int left, int right)
+{
+    if (left < right)
+    {
+        int pivotIndex = partition(questions, left, right);
+        quickSort(questions, left, pivotIndex - 1);
+        quickSort(questions, pivotIndex, right);
     }
 }
 
 int main()
 {
-    // //for option 1... practice by category. need to have all the category options in here. no dups.
-    // //vector<string> categories;
-    // unordered_map<string, int> categories;
-    // //for option 2... practice by dollar amount. no dups.
-    // unordered_map<string, int> d_amt;
-    // //for option 3...final jeopardy
-    // unordered_map<string, Question> fj;
-
-    // //mega map
-    // unordered_map<string, Question> qmap;
-
-    // string full = "";
-    // ifstream qfile;
-    // qfile.open("JEOPARDY_QUESTIONS1.JSON");
-    // if (qfile.is_open())
-    // {
-    //     while (!qfile.eof())
-    //     {
-    //         bool final = false;
-
-    //         getline(qfile, full, '}');
-    //         size_t pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //category
-    //         pos = full.find(',');
-    //         string cat = full.substr(0, pos);
-    //         if (cat.find('\"') != string::npos)
-    //         {
-    //             cat.erase(remove(cat.begin(), cat.end(), '\"'), cat.end());
-    //         }
-    //         if (categories.find(cat) == categories.end())
-    //         {
-    //             categories.insert(make_pair(cat, 1));
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //air date
-    //         pos = full.find(',');
-    //         string ad = full.substr(0, pos);
-    //         if (ad.find('\"') != string::npos)
-    //         {
-    //             ad.erase(remove(ad.begin(), ad.end(), '\"'), ad.end());
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //question
-    //         pos = full.find(',');
-    //         string quest = full.substr(0, pos);
-    //         if (quest.find('\"') != string::npos)
-    //         {
-    //             quest.erase(remove(quest.begin(), quest.end(), '\"'), quest.end());
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //value
-    //         pos = full.find(',');
-    //         string val = full.substr(0, pos);
-    //         if (val.find('\"') != string::npos)
-    //         {
-    //             val.erase(remove(val.begin(), val.end(), '\"'), val.end());
-    //         }
-    //         if (d_amt.find(val) == d_amt.end())
-    //         {
-    //             d_amt.insert(make_pair(val, 1));
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //answer
-    //         pos = full.find(',');
-    //         string ans = full.substr(0, pos);
-    //         if (ans.find('\"') != string::npos)
-    //         {
-    //             ans.erase(remove(ans.begin(), ans.end(), '\"'), ans.end());
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //round
-    //         pos = full.find(',');
-    //         string round = full.substr(0, pos);
-    //         if (round.find('\"') != string::npos)
-    //         {
-    //             round.erase(remove(round.begin(), round.end(), '\"'), round.end());
-    //         }
-    //         //check double jeopardy
-    //         if (round == "Final Jeopardy!")
-    //         {
-    //             final = true;
-    //         }
-
-    //         full.erase(0, pos + 1);
-    //         pos = full.find(':');
-    //         full.erase(0, pos + 1);
-
-    //         //show number
-    //         pos = full.find(',');
-    //         string sn = full.substr(0, pos);
-    //         if (sn.find('\"') != string::npos)
-    //         {
-    //             sn.erase(remove(sn.begin(), sn.end(), '\"'), sn.end());
-    //         }
-
-    //         ////CREATING THE PAIR HERE DOES NOT WORK. NEED HELP
-    //         auto q = new Question(cat, ad, quest, val, ans, round, sn);
-    //         pair<string, Question> nq(round, q);
-    //         qmap.insert(nq);
-
-    //         if (final)
-    //         {
-    //             ////CREATING THE PAIR HERE DOES NOT WORK. NEED HELP
-    //             fj.insert(make_pair(round, q));
-    //         }
-    //     }
-    // }
-    vector<Question> questions;
-    cout << "inital vector size: " << questions.size() << endl;
+    vector<Question> questions; //vector of all questions
+    vector<Question> no_final;  //vector of questions without final jeopardys because their values can't be sorted
+    cout << "Loading Jeopardy! questions..." << endl;
     readFile(questions);
-    cout << "questions PROBABLY successfully parsed from the json file into a vector of Question objects" << endl;
-    cout << "vector size after reading file: " << questions.size() << endl;
-    // int in;
-    // cout << "Welcome to the Jeopardy! Simulator\n1. Practice by Category\n";
-    // cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
-    // cout << "4. Random Question\n5. Lifetime Statistics\n6. Exit";
+    cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
 
-    // cin >> in;
+    bool running = true;
+    while (running)
+    {
+        int option = menu();
 
-    // switch (in)
-    // {
-    // case 1:
-    //     cout << "Which Category?\n";
-    //     for (auto &i : categories)
-    //     {
-    //         cout << i.first << endl;
-    //     }
-    // case 2:
-    // case 3:
-    // case 4:
-    // case 5:
-    // case 6:
-    //     break;
-    // default:
-    //     cout << "Please enter a valid number\n";
-    // }
+        if (option == 1)
+        {
+        }
+        else if (option == 2)
+        {
+        }
+        else if (option == 3)
+        {
+        }
+        else if (option == 4)
+        {
+        }
+        else if (option == 5)
+        {
+        }
+        else if (option == 6)
+        {
+            cout << "Removing unsortable Final Jeopardy! questions..." << endl;
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
+                {
+                    no_final.push_back(q);
+                }
+            }
+            cout << "Final Jeopardy! questions removed." << endl;
+            auto start = chrono::high_resolution_clock::now(); //saves the time before quicksort
+
+            quickSort(no_final, 0, no_final.size() - 1);
+
+            auto end = chrono::high_resolution_clock::now();                                     //saves the time after quicksort
+            double time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            time_taken *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+                 << " seconds" << endl;
+
+            cout << "\nResetting the sorted questions for the next sorting algorithm..." << endl;
+            no_final.clear(); //empties the sorted vector
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!")
+                {
+                    no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+                }
+            }
+            cout << "Questions successfully reset for the next sort." << endl;
+        }
+        else if (option == 7)
+        {
+            cout << "Bye!" << endl;
+            running = false;
+        }
+    }
     return 0;
 }
-
-// TODO:
-// - FIGURE OUT A WAY TO HANDLE THE DAILY DOUBLES, OR DECIDE IF THEY EVEN NEED TO BE HANDLED. I THINK IT IS A LIMITATION
-// OF THE DATASET ITSELF, AS THERE IS NO WAY TO TELL OTHER THAN ANALYZING THE DOLLAR VALUE OF THE QUESTION FOR IRREGULARITIES.
-// MAYBE ADD THIS AS A LIMITATION, EITHER AS A DISCLOSURE WITHIN THE PROGRAM ITSELF OR THE DOCUMENTATION.

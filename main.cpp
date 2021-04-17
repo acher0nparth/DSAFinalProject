@@ -111,7 +111,7 @@ int menu()
     int option = -1;
     cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice by Category\n";
     cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
-    cout << "4. Random Question\n5. Lifetime Statistics\n6. Sorting Algorithm Performance\n7. Exit\n";
+    cout << "4. Random Question\n5. Scores\n6. Sorting Algorithm Performance\n7. Reset Scores\n8. Exit\n";
     cin >> option;
     while (option > 7 || option < 1)
     {
@@ -179,14 +179,160 @@ void quickSort(vector<Question> &questions, int left, int right)
 //     //return sorted;
 // }
 
-void writeScore(string name, int correct, int total){
-    fstream out;
-    out.open("scores.csv", ios::out | ios::app); //opens an existing file or creates a new one
+void writeScore(string name, int correct, int total)
+{
+    fstream fin, fout;
+    fin.open("scores.csv", ios::in);
+    fout.open("scoresnew.csv", ios::out);
 
-    double percent = correct / total;
-    out << name << ", " << correct << ", " << total << ", " << percent << ", " << endl;
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
 
-    out.close();
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] == name)
+            { //updating the record if the name exists
+                int n_correct = correct + stoi(row[1]);
+                int n_total = total + stoi(row[2]);
+                int n_percent = n_correct / n_total;
+                fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
+            }
+            else
+            {
+                for (unsigned int i = 0; i < row.size(); i++)
+                { //otherwise just rewrite what's already there
+                    fout << row[i];
+                    if (i < row.size() - 1)
+                    {
+                        fout << ", ";
+                    }
+                    fout << endl;
+                }
+            }
+        }
+        else //if the row is empty, append the new data
+        {
+            int percent = correct / total;
+            fout << name << ", " << correct << ", " << total << ", " << percent;
+        }
+    }
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("scores.csv");
+
+    // renaming the updated file with the existing file name
+    rename("scoresnew.csv", "scores.csv");
+}
+
+void readScore(string name)
+{
+    fstream fin;
+    fin.open("scores.csv", ios::in);
+
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] == name)
+            { //updating the record if the name exists
+                cout << "Name: " << row[0] << endl;
+                cout << "Lifetime Correct Answers:" << row[1] << endl;
+                cout << "Lifetime Total Questions:" << row[2] << endl;
+                cout << "Percent Correct:" << row[3] << "%" << endl;
+            }
+        }
+        else //if the row is empty, append the new data
+        {
+            cout << name << " has no logged scores." << endl;
+        }
+    }
+
+    fin.close();
+}
+
+void resetScores()
+{
+    remove("scores.csv");
+    fstream fout;
+    fout.open("scores.csv", ios::in);
+    fout.close();
+}
+bool resetScore(string name)
+{
+    bool found = false;
+    fstream fin, fout;
+    fin.open("scores.csv", ios::in);
+    fout.open("scoresnew.csv", ios::out);
+
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] != name)
+            {
+                for (unsigned int i = 0; i < row.size(); i++)
+                { //otherwise just rewrite what's already there
+                    fout << row[i];
+                    if (i < row.size() - 1)
+                    {
+                        fout << ", ";
+                    }
+                    fout << endl;
+                }
+            }
+            else {
+                found = true;
+            }
+        }
+    }
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("scores.csv");
+
+    // renaming the updated file with the existing file name
+    rename("scoresnew.csv", "scores.csv");
+    return found;
 }
 
 int main()
@@ -198,11 +344,13 @@ int main()
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
 
     string name; //holds the initials to track users
-    cout << "Please enter your initials for score tracking: ";
+    cout << "Please enter your name for score tracking: ";
     cin >> name;
-    int correct, total = 0; //sets up score tracking features
+    transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-    bool running;
+    int correct = 0, total = 0; //number of correct questions and total questions
+
+    bool running = true;
     while (running)
     {
         int option = menu();
@@ -221,6 +369,20 @@ int main()
         }
         else if (option == 5)
         {
+            string option;
+            cout << "Are you viewing your own score? (y/n) ";
+            cin >> option;
+            if (option == "y")
+            {
+                cout << "Please note: These scores will not include statistics from this session." << endl;
+                readScore(name); //views the current users score
+            }
+            else
+            {
+                cout << "Whose score would you like to view? ";
+                cin >> option;
+                readScore(option); //pulls up the specified user's score
+            }
         }
         else if (option == 6)
         {
@@ -277,6 +439,61 @@ int main()
         }
         else if (option == 7)
         {
+            string option, option2, option3;
+            cout << "Would you like to reset scores for all users? (y/n) ";
+            cin >> option;
+            if (option == "y")
+            {
+                cout << "Are you sure? This cannot be undone! (y/n) ";
+                cin >> option2;
+                if (option2 == "y")
+                {
+                    cout << "Resetting scores..." << endl;
+                    resetScores();
+                    cout << "Scores successfully reset." << endl;
+                }
+            }
+            else
+            {
+                cout << "Are you erasing your own scores? (y/n) ";
+                cin >> option2;
+                if (option2 == "y")
+                {
+                    cout << "Resetting your scores..." << endl;
+                    bool found = resetScore(name);
+                    if (found){
+                    cout << "Your scores were reset." << endl;
+                    }
+                    else if (!found){
+                        cout << "You had no scores logged. No reset was performed." << endl;
+                    }
+                }
+                else {
+                    cout << "Whose scores would you like to reset? ";
+                    cin >> option3;
+                    cout << "Resetting scores for " << name << "..." << endl;
+                    bool found = resetScore(option3);
+                    if (found){
+                        cout << "Scores for " << option3 << " have been reset." << endl;
+                    }
+                    else if (!found){
+                        cout << "No scores found for " << option3 << ". No reset was performed." << endl;
+                    }
+                }
+            }
+        }
+        else if (option == 8)
+        {
+            if (total != 0)
+            {
+                cout << "Logging your scores..." << endl;
+                writeScore(name, correct, total);
+                cout << "Scores successfully logged." << endl;
+            }
+            else
+            {
+                cout << "No questions were given this session. Scores will not be updated." << endl;
+            }
             cout << "Bye!" << endl;
             running = false;
         }

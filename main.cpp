@@ -179,6 +179,16 @@ void quickSort(vector<Question> &questions, int left, int right)
 //     //return sorted;
 // }
 
+void writeScore(string name, int correct, int total){
+    fstream out;
+    out.open("scores.csv", ios::out | ios::app); //opens an existing file or creates a new one
+
+    double percent = correct / total;
+    out << name << ", " << correct << ", " << total << ", " << percent << ", " << endl;
+
+    out.close();
+}
+
 int main()
 {
     vector<Question> questions; //vector of all questions
@@ -187,7 +197,12 @@ int main()
     readFile(questions);
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
 
-    bool running = true;
+    string name; //holds the initials to track users
+    cout << "Please enter your initials for score tracking: ";
+    cin >> name;
+    int correct, total = 0; //sets up score tracking features
+
+    bool running;
     while (running)
     {
         int option = menu();

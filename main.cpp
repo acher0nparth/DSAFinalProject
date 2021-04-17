@@ -6,57 +6,12 @@
 #include <sstream>
 #include "json.hpp"
 #include <chrono>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 using json = nlohmann::json;
 
-
-
-class Question
-{
-    string category;
-    string air_date;
-    string question;
-    int value;
-    string answer;
-    string round;
-    string show_number;
-
-public:
-    Question(string c, string ad, string q, int v, string ans, string r, string num)
-    {
-        category = c;
-        air_date = ad;
-        question = q;
-        value = v;
-        answer = ans;
-        round = r;
-        show_number = num;
-    }
-    Question(string c, string ad, string q, string ans, string r, string num)
-    { //constructor for Final Jeopardy Questions and Tiebreakers so the null value is correctly handled
-        category = c;
-        air_date = ad;
-        question = q;
-        value = 0;
-        answer = ans;
-        round = r;
-        show_number = num;
-    }
-    string getRound()
-    {
-        return round;
-    }
-    int getValue()
-    {
-        return value;
-    }
-    string getQuestion()
-    {
-        return question;
-    }
-};
-void prettyFile() //turns the messy questions file into a nice easy to read json file
+//turns the messy questions file into a nice easy to read json file
+void prettyFile()
 {
     ifstream fin("messy_questions.json");
     json j;
@@ -65,6 +20,7 @@ void prettyFile() //turns the messy questions file into a nice easy to read json
     o << setw(4) << j << endl;
 }
 
+//reads the questions from the json file into the questions vector
 void readFile(vector<Question> &questions)
 {
     ifstream inFile("questions.json");
@@ -149,6 +105,7 @@ void readFile(vector<Question> &questions)
     }
 }
 
+//function to print menu and get input
 int menu()
 {
     int option = -1;
@@ -163,12 +120,16 @@ int menu()
     }
     return option;
 }
+
+//helper function to swap two Questions in a vector
 void swap(vector<Question> &arr, int a, int b)
 {
     Question temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
 }
+
+//helper function for quicksort
 int partition(vector<Question> &questions, int left, int right)
 {
     int pivotIndex = left + (right - left) / 2; //selects middle index as the pivot
@@ -203,21 +164,20 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
+// void heapSort(vector<Question> &questions, vector<Question> sorted)
+// {
+//     //int size = questions.size();
+//     make_heap(questions.begin(), questions.end());
 
-void heapSort(vector<Question> &questions, vector<Question> sorted) {
-    //int size = questions.size();
-    make_heap(questions.begin(), questions.end());
+//     while (!questions.empty())
+//     {
+//         Question max = questions.front();
+//         pop_heap(questions.begin(), questions.end());
+//         sorted.push_back(max);
+//     }
 
-    while(!questions.empty()){
-        Question max = questions.front();
-        pop_heap(questions.begin(), questions.end());
-        sorted.push_back(max);
-    }
-
-    //return sorted;
-}
-
-
+//     //return sorted;
+// }
 
 int main()
 {
@@ -279,29 +239,26 @@ int main()
             }
             cout << "Questions successfully reset for the next sort." << endl;
 
-
             //heapSort
-            start = chrono::high_resolution_clock::now(); //saves the time before quicksort
+            // start = chrono::high_resolution_clock::now(); //saves the time before heapsort
 
-            vector<Question> sorted;
-            heapSort(no_final, sorted);
+            // vector<Question> sorted;
+            // heapSort(no_final, sorted);
 
-            end = chrono::high_resolution_clock::now();                                     //saves the time after quicksort
-            time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            time_taken *= 1e-9;
-            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
-                 << " seconds" << endl;
-            no_final.clear(); //empties the sorted vector
-            for (Question q : questions)
-            {
-                if (q.getRound() != "Final Jeopardy!")
-                {
-                    no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
-                }
-            }
-            cout << "Questions successfully reset for the next sort." << endl;
-
-
+            // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            // time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            // time_taken *= 1e-9;
+            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+            //      << " seconds" << endl;
+            // no_final.clear(); //empties the sorted vector
+            // for (Question q : questions)
+            // {
+            //     if (q.getRound() != "Final Jeopardy!")
+            //     {
+            //         no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+            //     }
+            // }
+            // cout << "Questions successfully reset for the next sort." << endl;
         }
         else if (option == 7)
         {

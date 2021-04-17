@@ -116,6 +116,7 @@ int menu()
     }
     return option;
 }
+
 void swap(vector<Question> &arr, int a, int b)
 {
     Question temp = arr[a];
@@ -153,6 +154,56 @@ void quickSort(vector<Question> &questions, int left, int right)
         int pivotIndex = partition(questions, left, right);
         quickSort(questions, left, pivotIndex - 1);
         quickSort(questions, pivotIndex, right);
+    }
+}
+void merge (vector<Question> &questions, int start, int mid, int end){
+    int n1 = mid - start + 1;
+    int n2 = end - mid;
+
+    vector<Question> x(n1);
+    vector<Question> y(n2);
+
+    for (int i = 0; i < n1; i++)
+        x.at(i) = questions.at(start + i);
+
+    for(int i = 0; i < n2; i ++)
+        y.at(i) = questions.at((mid+1) +i);
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < n1 && j < n2){
+       if (x.at(i).getValue() <= y.at(j).getValue()) {
+           questions.at(k) = x.at(i);
+           i++;
+       } else {
+           questions.at(k) = y.at(j);
+           j++;
+       }
+
+       k++;
+    }
+
+    while (i < n1) {
+        questions.at(k) = x.at(i);
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        questions.at(k) = y.at(j);
+        j++;
+        k++;
+    }
+
+}
+void mergeSort (vector<Question> &questions, int start, int end) {
+    int mid;
+    if (start < end){
+        mid = (start + end) / 2;
+        mergeSort(questions, start, mid);
+        mergeSort(questions, mid+1, end);
+
+        merge(questions, start, mid, end);
     }
 }
 

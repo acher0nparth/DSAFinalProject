@@ -15,9 +15,9 @@ class Question
 public:
     struct HeapSwap
     {
-        bool operator()(Question *a, Question *b)
+        bool operator()(Question a, Question b)
         {
-            if (a->getValue() < b->getValue())
+            if (a.getValue() < b.getValue())
             {
                 return false;
             }

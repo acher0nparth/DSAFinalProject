@@ -6,10 +6,12 @@
 #include <sstream>
 #include "json.hpp"
 #include <chrono>
+//#include <bits/stdc++.h>
 using namespace std;
 using json = nlohmann::json;
 
-void prettyFile() //turns the messy questions file into a nice easy to read json file
+//turns the messy questions file into a nice easy to read json file
+void prettyFile()
 {
     ifstream fin("messy_questions.json");
     json j;
@@ -18,6 +20,7 @@ void prettyFile() //turns the messy questions file into a nice easy to read json
     o << setw(4) << j << endl;
 }
 
+//reads the questions from the json file into the questions vector
 void readFile(vector<Question> &questions)
 {
     ifstream inFile("questions.json");
@@ -102,12 +105,13 @@ void readFile(vector<Question> &questions)
     }
 }
 
+//function to print menu and get input
 int menu()
 {
     int option = -1;
     cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice by Category\n";
     cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
-    cout << "4. Random Question\n5. Lifetime Statistics\n6. Sorting Algorithm Performance\n7. Exit\n";
+    cout << "4. Random Question\n5. Scores\n6. Sorting Algorithm Performance\n7. Reset Scores\n8. Exit\n";
     cin >> option;
     while (option > 7 || option < 1)
     {
@@ -117,12 +121,15 @@ int menu()
     return option;
 }
 
+//helper function to swap two Questions in a vector
 void swap(vector<Question> &arr, int a, int b)
 {
     Question temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
 }
+
+//helper function for quicksort
 int partition(vector<Question> &questions, int left, int right)
 {
     int pivotIndex = left + (right - left) / 2; //selects middle index as the pivot
@@ -156,6 +163,21 @@ void quickSort(vector<Question> &questions, int left, int right)
         quickSort(questions, pivotIndex, right);
     }
 }
+
+// void heapSort(vector<Question> &questions, vector<Question> sorted)
+// {
+//     //int size = questions.size();
+//     make_heap(questions.begin(), questions.end());
+
+//     while (!questions.empty())
+//     {
+//         Question max = questions.front();
+//         pop_heap(questions.begin(), questions.end());
+//         sorted.push_back(max);
+//     }
+
+//     //return sorted;
+// }
 void merge (vector<Question> &questions, int start, int mid, int end){
     int n1 = mid - start + 1;
     int n2 = end - mid;
@@ -164,33 +186,33 @@ void merge (vector<Question> &questions, int start, int mid, int end){
     vector<Question> y(n2);
 
     for (int i = 0; i < n1; i++)
-        x.at(i) = questions.at(start + i);
+        x[i] = questions[start + i];
 
     for(int i = 0; i < n2; i ++)
-        y.at(i) = questions.at((mid+1) +i);
+        y[i] = questions[(mid+1) +i];
 
     int i = 0, j = 0, k = 0;
 
     while (i < n1 && j < n2){
-       if (x.at(i).getValue() <= y.at(j).getValue()) {
-           questions.at(k) = x.at(i);
-           i++;
-       } else {
-           questions.at(k) = y.at(j);
-           j++;
-       }
+        if (x[i].getValue() <= y[j].getValue()) {
+            questions[k] = x[i];
+            i++;
+        } else {
+            questions[k] = y[j];
+            j++;
+        }
 
-       k++;
+        k++;
     }
 
     while (i < n1) {
-        questions.at(k) = x.at(i);
+        questions[k] = x[i];
         i++;
         k++;
     }
 
     while (j < n2) {
-        questions.at(k) = y.at(j);
+        questions[k] = y[j];
         j++;
         k++;
     }
@@ -207,6 +229,162 @@ void mergeSort (vector<Question> &questions, int start, int end) {
     }
 }
 
+void writeScore(string name, int correct, int total)
+{
+    fstream fin, fout;
+    fin.open("scores.csv", ios::in);
+    fout.open("scoresnew.csv", ios::out);
+
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] == name)
+            { //updating the record if the name exists
+                int n_correct = correct + stoi(row[1]);
+                int n_total = total + stoi(row[2]);
+                int n_percent = n_correct / n_total;
+                fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
+            }
+            else
+            {
+                for (unsigned int i = 0; i < row.size(); i++)
+                { //otherwise just rewrite what's already there
+                    fout << row[i];
+                    if (i < row.size() - 1)
+                    {
+                        fout << ", ";
+                    }
+                    fout << endl;
+                }
+            }
+        }
+        else //if the row is empty, append the new data
+        {
+            int percent = correct / total;
+            fout << name << ", " << correct << ", " << total << ", " << percent;
+        }
+    }
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("scores.csv");
+
+    // renaming the updated file with the existing file name
+    rename("scoresnew.csv", "scores.csv");
+}
+
+void readScore(string name)
+{
+    fstream fin;
+    fin.open("scores.csv", ios::in);
+
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] == name)
+            { //updating the record if the name exists
+                cout << "Name: " << row[0] << endl;
+                cout << "Lifetime Correct Answers:" << row[1] << endl;
+                cout << "Lifetime Total Questions:" << row[2] << endl;
+                cout << "Percent Correct:" << row[3] << "%" << endl;
+            }
+        }
+        else //if the row is empty, append the new data
+        {
+            cout << name << " has no logged scores." << endl;
+        }
+    }
+
+    fin.close();
+}
+
+void resetScores()
+{
+    remove("scores.csv");
+    fstream fout;
+    fout.open("scores.csv", ios::in);
+    fout.close();
+}
+bool resetScore(string name)
+{
+    bool found = false;
+    fstream fin, fout;
+    fin.open("scores.csv", ios::in);
+    fout.open("scoresnew.csv", ios::out);
+
+    string line, word;
+    vector<string> row;
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] != name)
+            {
+                for (unsigned int i = 0; i < row.size(); i++)
+                { //otherwise just rewrite what's already there
+                    fout << row[i];
+                    if (i < row.size() - 1)
+                    {
+                        fout << ", ";
+                    }
+                    fout << endl;
+                }
+            }
+            else {
+                found = true;
+            }
+        }
+    }
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("scores.csv");
+
+    // renaming the updated file with the existing file name
+    rename("scoresnew.csv", "scores.csv");
+    return found;
+}
+
 int main()
 {
     vector<Question> questions; //vector of all questions
@@ -214,6 +392,13 @@ int main()
     cout << "Loading Jeopardy! questions..." << endl;
     readFile(questions);
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
+
+    string name; //holds the initials to track users
+    cout << "Please enter your name for score tracking: ";
+    cin >> name;
+    transform(name.begin(), name.end(), name.begin(), ::toupper);
+
+    int correct = 0, total = 0; //number of correct questions and total questions
 
     bool running = true;
     while (running)
@@ -234,6 +419,20 @@ int main()
         }
         else if (option == 5)
         {
+            string option;
+            cout << "Are you viewing your own score? (y/n) ";
+            cin >> option;
+            if (option == "y")
+            {
+                cout << "Please note: These scores will not include statistics from this session." << endl;
+                readScore(name); //views the current users score
+            }
+            else
+            {
+                cout << "Whose score would you like to view? ";
+                cin >> option;
+                readScore(option); //pulls up the specified user's score
+            }
         }
         else if (option == 6)
         {
@@ -266,9 +465,85 @@ int main()
                 }
             }
             cout << "Questions successfully reset for the next sort." << endl;
+
+            //heapSort
+            // start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+
+            // vector<Question> sorted;
+            // heapSort(no_final, sorted);
+
+            // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            // time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            // time_taken *= 1e-9;
+            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+            //      << " seconds" << endl;
+            // no_final.clear(); //empties the sorted vector
+            // for (Question q : questions)
+            // {
+            //     if (q.getRound() != "Final Jeopardy!")
+            //     {
+            //         no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+            //     }
+            // }
+            // cout << "Questions successfully reset for the next sort." << endl;
         }
         else if (option == 7)
         {
+            string option, option2, option3;
+            cout << "Would you like to reset scores for all users? (y/n) ";
+            cin >> option;
+            if (option == "y")
+            {
+                cout << "Are you sure? This cannot be undone! (y/n) ";
+                cin >> option2;
+                if (option2 == "y")
+                {
+                    cout << "Resetting scores..." << endl;
+                    resetScores();
+                    cout << "Scores successfully reset." << endl;
+                }
+            }
+            else
+            {
+                cout << "Are you erasing your own scores? (y/n) ";
+                cin >> option2;
+                if (option2 == "y")
+                {
+                    cout << "Resetting your scores..." << endl;
+                    bool found = resetScore(name);
+                    if (found){
+                    cout << "Your scores were reset." << endl;
+                    }
+                    else if (!found){
+                        cout << "You had no scores logged. No reset was performed." << endl;
+                    }
+                }
+                else {
+                    cout << "Whose scores would you like to reset? ";
+                    cin >> option3;
+                    cout << "Resetting scores for " << name << "..." << endl;
+                    bool found = resetScore(option3);
+                    if (found){
+                        cout << "Scores for " << option3 << " have been reset." << endl;
+                    }
+                    else if (!found){
+                        cout << "No scores found for " << option3 << ". No reset was performed." << endl;
+                    }
+                }
+            }
+        }
+        else if (option == 8)
+        {
+            if (total != 0)
+            {
+                cout << "Logging your scores..." << endl;
+                writeScore(name, correct, total);
+                cout << "Scores successfully logged." << endl;
+            }
+            else
+            {
+                cout << "No questions were given this session. Scores will not be updated." << endl;
+            }
             cout << "Bye!" << endl;
             running = false;
         }

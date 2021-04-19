@@ -228,18 +228,70 @@ void mergeSort(vector<Question> &questions, int start, int end)
     }
 }
 
-void heapSort(vector<Question> &questions, vector<Question> &sorted)
-{
-    // make_heap(questions.begin(), questions.end(), Question::HeapSwap());
+void heapify(vector<Question> theheap, int index, int size) {
+    int parent = index;
+    int LC = (2 * parent) + 1;
+    int RC = (2 * parent) + 2;
 
-    // while (!questions.empty())
-    // {
-    //     pop_heap(questions.begin(), questions.end());
-    //     Question max = questions.back();
-    //     sorted.push_back(max);
-    //     questions.pop_back();
-    // }
+
+    if(parent > (size-2)/2) {  //leaf node
+        //stop
+        return;
+    }
+
+    if(LC < size && RC < size) {
+        if(theheap[parent].value < theheap[LC].value && theheap[parent].value < theheap[RC].value) {
+            int temp;
+            if(max(theheap[LC].value, theheap[RC].value) == theheap[LC].value){
+                temp = LC;
+            }
+            else {
+                temp = RC;
+            }
+            int hold = theheap[parent].value;
+            theheap[parent] = theheap[temp];
+            theheap[temp].value = hold;
+            heapify(theheap, temp, size);
+
+
+        }
+        else if(theheap[parent].value < theheap[LC].value) {
+            int hold = theheap[parent].value;
+            theheap[parent] = theheap[LC];
+            theheap[LC].value = hold;
+            heapify(theheap, LC, size);
+        }
+        else if(theheap[parent].value < theheap[RC].value) {
+            int hold = theheap[parent].value;
+            theheap[parent] = theheap[RC];
+            theheap[RC].value = hold;
+            heapify(theheap, RC, size);
+        }
+    }
+    else if(LC < size) {
+        if(theheap[parent].value < theheap[LC].value) {
+            int hold = theheap[parent].value;
+            theheap[parent] = theheap[LC];
+            theheap[LC].value = hold;
+            heapify(theheap, LC, size);
+        }
+    }
 }
+
+
+void heapSort(vector<Question> &questions, vector<Question> sorted) {
+    //make_heap(questions.begin(), questions.end(), HeapSwap());
+    int size = questions.size();
+    heapify(questions, 0, size);
+
+    while(!questions.empty()){
+        pop_heap(questions.begin(), questions.end());
+        Question max = questions.back();
+        sorted.push_back(max);
+        questions.pop_back();
+    }
+}
+
 
 void writeScore(string name, int correct, int total)
 {

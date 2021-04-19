@@ -168,7 +168,8 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-void merge (vector<Question> &questions, int start, int mid, int end){
+void merge(vector<Question> &questions, int start, int mid, int end)
+{
     int n1 = mid - start + 1;
     int n2 = end - mid;
 
@@ -178,16 +179,20 @@ void merge (vector<Question> &questions, int start, int mid, int end){
     for (int i = 0; i < n1; i++)
         x[i] = questions[start + i];
 
-    for(int i = 0; i < n2; i ++)
-        y[i] = questions[(mid+1) +i];
+    for (int i = 0; i < n2; i++)
+        y[i] = questions[(mid + 1) + i];
 
-    int i = 0, j = 0, k = 0;
+    int i = 0, j = 0, k = start;
 
-    while (i < n1 && j < n2){
-        if (x[i].getValue() <= y[j].getValue()) {
+    while (i < n1 && j < n2)
+    {
+        if (x[i].getValue() <= y[j].getValue())
+        {
             questions[k] = x[i];
             i++;
-        } else {
+        }
+        else
+        {
             questions[k] = y[j];
             j++;
         }
@@ -195,29 +200,33 @@ void merge (vector<Question> &questions, int start, int mid, int end){
         k++;
     }
 
-    while (i < n1) {
+    while (i < n1)
+    {
         questions[k] = x[i];
         i++;
         k++;
     }
 
-    while (j < n2) {
+    while (j < n2)
+    {
         questions[k] = y[j];
         j++;
         k++;
     }
-
 }
 
-void mergeSort (vector<Question> &questions, int start, int end) {
-    int mid;
-    if (start < end){
+void mergeSort(vector<Question> &questions, int start, int end)
+{
+    int mid = 0;
+    if (start < end)
+    {
         mid = (start + end) / 2;
         mergeSort(questions, start, mid);
-        mergeSort(questions, mid+1, end);
+        mergeSort(questions, mid + 1, end);
 
         merge(questions, start, mid, end);
     }
+}
 
 void heapSort(vector<Question> &questions, vector<Question> &sorted)
 {
@@ -230,7 +239,6 @@ void heapSort(vector<Question> &questions, vector<Question> &sorted)
     //     sorted.push_back(max);
     //     questions.pop_back();
     // }
-
 }
 
 void writeScore(string name, int correct, int total)
@@ -412,7 +420,7 @@ void play(Question q, int &numRight)
         cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
     }
 }
-  
+
 int main()
 {
     vector<Question> questions;  //vector of all questions
@@ -584,7 +592,7 @@ int main()
             }
             int random = rand() % (only_final.size() - 1);
             cout << "This Final Jeopardy! question aired on " << only_final[random].getDate()
-            << " for show number " << only_final[random].getNum();
+                 << " for show number " << only_final[random].getNum();
             cin.ignore();
             play(only_final[random], correct);
             total++;
@@ -593,7 +601,7 @@ int main()
         {
             int random = rand() % (questions.size() - 1);
             cout << "This question aired on " << questions[random].getDate()
-            << " for show number " << questions[random].getNum();
+                 << " for show number " << questions[random].getNum();
             cin.ignore();
             play(questions[random], correct);
             total++;
@@ -621,6 +629,7 @@ int main()
         }
         else if (option == 6)
         {
+            //quickSort
             no_final.clear();
             cout << "Removing unsortable Final Jeopardy! questions..." << endl;
             for (Question q : questions)
@@ -636,9 +645,31 @@ int main()
             quickSort(no_final, 0, no_final.size() - 1);
 
             auto end = chrono::high_resolution_clock::now();                                     //saves the time after quicksort
-            double time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            time_taken *= 1e-9;
-            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+            double quick_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            quick_time *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << quick_time << setprecision(9)
+                 << " seconds" << endl;
+
+            cout << "\nResetting the sorted questions for the next sorting algorithm..." << endl;
+            no_final.clear(); //empties the sorted vector
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!")
+                {
+                    no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+                }
+            }
+            cout << "Questions successfully reset for the next sort." << endl;
+
+            //mergeSort
+            start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+
+            mergeSort(no_final, 0, no_final.size() - 1);
+
+            end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            double merge_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            merge_time *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using MergeSort: " << fixed << merge_time << setprecision(9)
                  << " seconds" << endl;
 
             cout << "\nResetting the sorted questions for the next sorting algorithm..." << endl;
@@ -659,9 +690,9 @@ int main()
             // heapSort(no_final, sorted);
 
             // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
-            // time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            // time_taken *= 1e-9;
-            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+            // double heap_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            // heap_time *= 1e-9;
+            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << heap_time << setprecision(9)
             //      << " seconds" << endl;
             // no_final.clear(); //empties the sorted vector
             // for (Question q : questions)
@@ -672,6 +703,7 @@ int main()
             //     }
             // }
             // cout << "Questions successfully reset for the next sort." << endl;
+            
         }
         else if (option == 7)
         {

@@ -115,13 +115,15 @@ int menu()
     int option = -1;
     cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice Jeopardy! Exam\n";
     cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
-    cout << "4. Random Question\n5. Scores\n6. Sorting Algorithm Performance\n7. Reset Scores\n8. Exit\n";
+    cout << "4. Random Question\n5. Sorting Algorithm Performance\n6. View Scores\n7. Update Scores\n8. Reset Scores\n";
+    cout << "9. Exit\n";
     cin >> option;
-    while (option > 8 || option < 1)
+    while (option > 9 || option < 1)
     {
         cout << "Please enter a valid menu selection!" << endl;
         cin >> option;
     }
+    cout << "\n";
     return option;
 }
 
@@ -608,27 +610,6 @@ int main()
         }
         else if (option == 5)
         {
-            string option;
-            cout << "Are you viewing your own score? (y/n) ";
-
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, option);
-
-            if (option == "y")
-            {
-                cout << "Please note: These scores will not include statistics from this session." << endl;
-                readScore(name); //views the current users score
-            }
-            else
-            {
-                cout << "Whose score would you like to view? ";
-
-                getline(cin, option);
-                readScore(option); //pulls up the specified user's score
-            }
-        }
-        else if (option == 6)
-        {
             //quickSort
             no_final.clear();
             cout << "Removing unsortable Final Jeopardy! questions..." << endl;
@@ -666,7 +647,7 @@ int main()
 
             mergeSort(no_final, 0, no_final.size() - 1);
 
-            end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            end = chrono::high_resolution_clock::now();                                          //saves the time after heapsort
             double merge_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
             merge_time *= 1e-9;
             cout << "\nTime to sort questions by dollar value using MergeSort: " << fixed << merge_time << setprecision(9)
@@ -703,9 +684,47 @@ int main()
             //     }
             // }
             // cout << "Questions successfully reset for the next sort." << endl;
-            
+        }
+        else if (option == 6)
+        {
+            cout << "Please note: These scores will not include statistics from this session.\n";
+            cout << "If you would like to view up-to-date scores, please select menu option 7.\n\n";
+            string option;
+            cout << "Are you viewing your own score? (y/n) ";
+
+            cin.ignore(); //prevents weird errors with getline
+            getline(cin, option);
+
+            if (option == "y")
+            {
+                readScore(name); //views the current users score
+            }
+            else
+            {
+                cout << "Whose score would you like to view? ";
+
+                getline(cin, option);
+                readScore(option); //pulls up the specified user's score
+            }
         }
         else if (option == 7)
+        {
+            if (total != 0)
+            {
+
+                cout << "Updating scores to reflect progress this session...\n";
+                writeScore(name, correct, total);
+                //zeroing out the scores after they've been recorded so things don't get double counted
+                total = 0;
+                correct = 0;
+                cout << "Scores updated!\n";
+            }
+            else
+            {
+                cout << "No questions have been given this session! No update was performed.\n";
+            }
+        }
+        else if (option == 8)
         {
             string option, option2, option3;
             cout << "Would you like to reset scores for all users? (y/n) ";
@@ -726,10 +745,6 @@ int main()
             }
             else if (option == "n")
             {
-                continue;
-            }
-            else
-            {
                 cout << "Are you erasing your own scores? (y/n) ";
                 getline(cin, option2);
                 if (option2 == "y")
@@ -745,11 +760,11 @@ int main()
                         cout << "You had no scores logged. No reset was performed." << endl;
                     }
                 }
-                else
+                else if (option2 == "n")
                 {
                     cout << "Whose scores would you like to reset? ";
                     getline(cin, option3);
-                    cout << "Resetting scores for " << name << "..." << endl;
+                    cout << "Resetting scores for " << option3 << "..." << endl;
                     bool found = resetScore(option3);
                     if (found)
                     {
@@ -762,8 +777,11 @@ int main()
                     }
                 }
             }
+            else
+            {
+            }
         }
-        else if (option == 8)
+        else if (option == 9)
         {
             if (total != 0)
             {

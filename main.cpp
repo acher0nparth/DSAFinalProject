@@ -281,6 +281,7 @@ void heapify(vector<Question> &theheap, int index, int size)
         while (!fin.eof())
         {
 
+
             row.clear();
 
             getline(fin, line);
@@ -289,6 +290,12 @@ void heapify(vector<Question> &theheap, int index, int size)
             while (getline(s, word, ','))
             {
                 row.push_back(word);
+            if (row[0] == name)
+            { //updating the record if the name exists
+                int n_correct = correct + stoi(row[1]);
+                int n_total = total + stoi(row[2]);
+                double n_percent = (double)n_correct / n_total * 100.0;
+                fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
             }
             if (row.size() != 0) // checking if the row is empty
             {
@@ -318,6 +325,12 @@ void heapify(vector<Question> &theheap, int index, int size)
                 fout << name << ", " << correct << ", " << total << ", " << percent;
             }
         }
+        else //if the row is empty, append the new data
+        {
+            double percent = (double)correct / total * 100.0;
+            fout << name << ", " << correct << ", " << total << ", " << percent;
+        }
+    }
 
         fin.close();
         fout.close();
@@ -341,6 +354,7 @@ void heapify(vector<Question> &theheap, int index, int size)
 
             row.clear();
 
+
             getline(fin, line);
             stringstream s(line);
 
@@ -361,6 +375,20 @@ void heapify(vector<Question> &theheap, int index, int size)
             else //if the row is empty, append the new data
             {
                 cout << name << " has no logged scores." << endl;
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+        if (row.size() != 0) // checking if the row is empty
+        {
+            if (row[0] == name)
+            { //updating the record if the name exists
+                cout << "Name: " << row[0] << endl;
+                cout << "Lifetime Correct Answers:" << row[1] << endl;
+                cout << "Lifetime Total Questions:" << row[2] << endl;
+                cout << "Percent Correct:" << row[3] << "%" << endl;
+                break;
             }
         }
 
@@ -430,6 +458,7 @@ void heapify(vector<Question> &theheap, int index, int size)
 
     void play(Question q, int &numRight)
     {
+
         bool correct = false;
         if (q.getRound() == "Final Jeopardy!")
         {
@@ -447,6 +476,23 @@ void heapify(vector<Question> &theheap, int index, int size)
         else
         {
             cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
+
+        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << "\n";
+
+        //even if we mistakenly give them credit, just let them have it. only check for misgrades if its wrong
+        cout << "Did we mis-grade this question? (y/n) ";
+        string misGrade;
+        getline(cin, misGrade);
+        if (misGrade == "y")
+        {
+            cout << "\nHow many did we mis-grade? ";
+            string fix;
+            getline(cin, fix);
+            if (stoi(fix) > 0)
+            {
+                numRight += stoi(fix);
+            }
+            cout << "Sorry about that! Your scores have been fixed.\n";
         }
     }
 
@@ -504,6 +550,22 @@ void heapify(vector<Question> &theheap, int index, int size)
                 {
                     cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
                 }
+            }
+            //printing out the instructions for the exam
+            cout << "You are about to take a practice Jeopardy! exam. This exam has the same format as the one "
+                 << "given to potential competitors on the show." << endl;
+            cout << "There are 50 questions. We will not time you, but you should try to answer quickly.";
+            cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
+            cout << "There is also no need to answer in the form of a question." << endl;
+            cout << "Please type 'y' when you are ready to begin.";
+            string begin;
+            cin.ignore(); //prevents weird errors with getline
+            getline(cin, begin);
+            while (begin != "y")
+            {
+                cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
+                getline(cin, begin);
+            }
 
                 unordered_map<string, Question> incorrect;
                 int right = 0;
@@ -538,6 +600,26 @@ void heapify(vector<Question> &theheap, int index, int size)
                         incorrect.emplace(attempt, q);
                         total++;
                     }
+            cout << "\n\nExit by typing 'exit' at any time.";
+            int qNum = 0; //holds the number of questions so far in the exam
+            for (Question q : exam)
+            {
+                cout << "\n\nCategory: " << q.getCategory() << endl;
+                cout << "Question: "
+                     << q.getQuestion() << endl;
+                cout << "Answer: ";
+                getline(cin, attempt);
+                if (attempt == "exit")
+                {
+                    break;
+                }
+                gotIt = q.checkAnswer(attempt);
+                total++; //doing it individually avoids screwing up the scores if the user leaves early
+                qNum++;
+                if (gotIt)
+                {
+                    right++;
+                    correct++;
                 }
                 cout << "\n"
                      << setfill('*') << setw(80) << "\n";
@@ -571,6 +653,17 @@ void heapify(vector<Question> &theheap, int index, int size)
                 }
             }
             else if (option == 2)
+                    incorrect.emplace(attempt, q);
+                }
+            }
+            cout << "\n"
+                 << setfill('*') << setw(80) << "\n";
+            cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
+                 << setfill(' ') << setw(36) << "\n";
+            cout << setfill('*') << setw(80) << "\n";
+            cout << "Your score was: " << (right / (double)qNum) * 100 << "%"
+                 << "\n";
+            if (right < 50)
             {
                 no_final.clear();
                 cout << "Removing unusable Final Jeopardy! questions..." << endl;
@@ -579,6 +672,27 @@ void heapify(vector<Question> &theheap, int index, int size)
                     if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
                     {
                         no_final.push_back(q);
+                    cout << "You had " << qNum - right << " wrong answers out of " << qNum << " total.";
+                    cout << " They will be listed here in the same order as on the exam.\n";
+                    for (auto it = incorrect.begin(); it != incorrect.end(); it++)
+                    {
+                        cout << "\nThe question was: " << it->second.getQuestion() << endl;
+                        cout << "Your answer was: " << it->first << endl;
+                        cout << "The correct answer was: " << it->second.getAnswer() << "\n";
+                    }
+                    cout << "Did we mis-grade any questions? (y/n) ";
+                    string misGrade;
+                    getline(cin, misGrade);
+                    if (misGrade == "y")
+                    {
+                        cout << "\nHow many did we mis-grade? ";
+                        string fix;
+                        getline(cin, fix);
+                        if (stoi(fix) > 0)
+                        {
+                            correct += stoi(fix);
+                        }
+                        cout << "Sorry about that! Your scores have been fixed.\n";
                     }
                 }
                 cout << "Final Jeopardy! questions removed." << endl;
@@ -719,6 +833,7 @@ void heapify(vector<Question> &theheap, int index, int size)
                 cin.ignore(); //prevents weird errors with getline
                 getline(cin, option);
 
+
                 if (option == "y")
                 {
                     readScore(name); //views the current users score
@@ -726,6 +841,23 @@ void heapify(vector<Question> &theheap, int index, int size)
                 else
                 {
                     cout << "Whose score would you like to view? ";
+
+                cout << "Updating scores to reflect progress this session...\n";
+                writeScore(name, correct, total);
+                //zeroing out the scores after they've been recorded so things don't get double counted
+                total = 0;
+                correct = 0;
+                cout << "Scores updated!\n";
+            }
+            else
+            {
+                cout << "No questions have been answered this session! No update was performed.\n";
+            }
+        }
+        else if (option == 8)
+        {
+            string option, option2, option3;
+            cout << "Would you like to reset scores for all users? (y/n) ";
 
                     getline(cin, option);
                     readScore(option); //pulls up the specified user's score
@@ -807,6 +939,7 @@ void heapify(vector<Question> &theheap, int index, int size)
             }
             else if (option == 9)
             {
+
                 if (total != 0)
                 {
                     cout << "Logging your scores..." << endl;
@@ -819,6 +952,8 @@ void heapify(vector<Question> &theheap, int index, int size)
                 }
                 cout << "Bye!\n\n";
                 running = false;
+
+                cout << "No questions were answered this session. Scores will not be updated." << endl;
             }
         }
         return 0;

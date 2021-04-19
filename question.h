@@ -33,6 +33,8 @@ public:
         round = r;
         show_number = num;
     }
+    
+    
     string getRound()
     {
         return round;
@@ -44,5 +46,15 @@ public:
     string getQuestion()
     {
         return question;
+    }
+    
+    struct HeapSwap{
+        bool operator()(Question* a, Question *b) {
+            if (a->getValue() < b->getValue()){
+                return false;
+            }
+            else {
+                return true;
+            }
     }
 };

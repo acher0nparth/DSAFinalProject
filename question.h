@@ -13,6 +13,21 @@ class Question
     string show_number;
 
 public:
+    struct HeapSwap
+    {
+        bool operator()(Question *a, Question *b)
+        {
+            if (a->getValue() < b->getValue())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    };
+
     Question(string c, string ad, string q, int v, string ans, string r, string num)
     {
         category = c;

@@ -229,18 +229,44 @@ void mergeSort(vector<Question> &questions, int start, int end)
         merge(questions, start, mid, end);
     }
 }
-
-void heapSort(vector<Question> &questions, vector<Question> &sorted)
+void heapify(vector<Question> &theheap, int index, int size)
 {
-    // make_heap(questions.begin(), questions.end(), Question::HeapSwap());
+    int largest = index;
+    int lc = (2 * index) + 1;
+    int rc = (2 * index) + 2;
 
-    // while (!questions.empty())
-    // {
-    //     pop_heap(questions.begin(), questions.end());
-    //     Question max = questions.back();
-    //     sorted.push_back(max);
-    //     questions.pop_back();
-    // }
+    if (lc < size && theheap[lc].getValue() > theheap[largest].getValue())
+    {
+        largest = lc;
+    }
+    if (rc < size && theheap[rc].getValue() > theheap[largest].getValue())
+    {
+        largest = rc;
+    }
+    if (largest != index)
+    {
+        swap(theheap, largest, index);
+        heapify(theheap, largest, size);
+    }
+}
+
+void heapSort(vector<Question> &questions)
+{
+    int size = questions.size();
+    // heapify(questions, 0, size);
+
+    for (int i = size / 2 - 1; i >= 0; i--)
+        heapify(questions, i, size);
+
+    // One by one extract an element from heap
+    for (int i = size - 1; i > 0; i--)
+    {
+        // Move current root to end
+        swap(questions, 0, i);
+
+        // call max heapify on the reduced heap
+        heapify(questions, 0, i);
+    }
 }
 
 void writeScore(string name, int correct, int total)
@@ -699,25 +725,24 @@ int main()
             cout << "Questions successfully reset for the next sort." << endl;
 
             //heapSort
-            // start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+            start = chrono::high_resolution_clock::now(); //saves the time before heapsort
 
-            // vector<Question> sorted;
-            // heapSort(no_final, sorted);
+            heapSort(no_final);
 
-            // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
-            // double heap_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            // heap_time *= 1e-9;
-            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << heap_time << setprecision(9)
-            //      << " seconds" << endl;
-            // no_final.clear(); //empties the sorted vector
-            // for (Question q : questions)
-            // {
-            //     if (q.getRound() != "Final Jeopardy!")
-            //     {
-            //         no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
-            //     }
-            // }
-            // cout << "Questions successfully reset for the next sort." << endl;
+            end = chrono::high_resolution_clock::now();                                         //saves the time after heapsort
+            double heap_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            heap_time *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using HeapSort: " << fixed << heap_time << setprecision(9)
+                 << " seconds" << endl;
+            no_final.clear(); //empties the sorted vector
+
+            double quick_heap = ((heap_time - quick_time) / heap_time) * 100;
+            double quick_merge = ((merge_time - quick_time) / merge_time) * 100;
+
+            cout << "\nQuickSort was " << quick_heap << "%"
+                 << " faster than HeapSort.\n";
+            cout << "QuickSort was " << quick_merge << "%"
+                 << " faster than MergeSort.\n";
         }
         else if (option == 6)
         {

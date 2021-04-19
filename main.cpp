@@ -738,10 +738,13 @@ int main()
 
             double quick_heap = ((heap_time - quick_time) / heap_time) * 100;
             double quick_merge = ((merge_time - quick_time) / merge_time) * 100;
+            double heap_merge = ((merge_time - heap_time) / merge_time) * 100;
 
             cout << "\nQuickSort was " << quick_heap << "%"
                  << " faster than HeapSort.\n";
             cout << "QuickSort was " << quick_merge << "%"
+                 << " faster than MergeSort.\n";
+            cout << "HeapSort was " << heap_merge << "%"
                  << " faster than MergeSort.\n";
         }
         else if (option == 6)

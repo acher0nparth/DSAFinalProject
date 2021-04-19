@@ -249,60 +249,6 @@ void heapify(vector<Question> &theheap, int index, int size)
         swap(theheap, largest, index);
         heapify(theheap, largest, size);
     }
-
-    // int parent = index;
-    // int LC = (2 * index) + 1;
-    // int RC = (2 * index) + 2;
-
-    // if (parent > (size - 2) / 2)
-    // { //leaf node
-    //     //stop
-    //     return;
-    // }
-
-    // if (LC < size && RC < size)
-    // {
-    //     if (theheap[parent].getValue() <= theheap[LC].getValue() && theheap[parent].getValue() <= theheap[RC].getValue())
-    //     {
-    //         int temp;
-    //         if (max(theheap[LC].getValue(), theheap[RC].getValue()) == theheap[LC].getValue())
-    //         {
-    //             temp = LC;
-    //         }
-    //         else
-    //         {
-    //             temp = RC;
-    //         }
-    //         swap(theheap, parent, temp);
-    //         heapify(theheap, temp, size);
-    //     }
-    //     else if (theheap[parent].getValue() <= theheap[LC].getValue())
-    //     {
-    //         swap(theheap, parent, RC);
-    //         heapify(theheap, LC, size);
-    //     }
-    //     else if (theheap[parent].getValue() <= theheap[RC].getValue())
-    //     {
-    //         swap(theheap, parent, RC);
-    //         heapify(theheap, RC, size);
-    //     }
-    // }
-    // else if (LC < size)
-    // {
-    //     if (theheap[parent].getValue() <= theheap[LC].getValue())
-    //     {
-    //         swap(theheap, parent, LC);
-    //         heapify(theheap, LC, size);
-    //     }
-    // }
-    // else
-    // {
-    //     if (theheap[parent].getValue() <= theheap[RC].getValue())
-    //     {
-    //         swap(theheap, parent, RC);
-    //         heapify(theheap, RC, size);
-    //     }
-    // }
 }
 
     void heapSort(vector<Question> & questions)
@@ -322,17 +268,6 @@ void heapify(vector<Question> &theheap, int index, int size)
             // call max heapify on the reduced heap
             heapify(questions, 0, i);
         }
-        // while (size > 0)
-        // {
-        //     cout << size << "\n";
-        //     sorted.push_back(questions[0]);
-        //     // questions[0] = questions[--size];
-        //     swap(questions[0], questions[--size]);
-        //     if (size > 0)
-        //     {
-        //         heapify(questions, 0, size);
-        //     }
-        // }
     }
 
     void writeScore(string name, int correct, int total)

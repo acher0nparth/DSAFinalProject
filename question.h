@@ -13,6 +13,16 @@ class Question
     string show_number;
 
 public:
+    Question()
+    {
+        category = "";
+        air_date = "";
+        question = "";
+        value = 0;
+        answer = "";
+        round = "";
+        show_number = "";
+    }
     Question(string c, string ad, string q, int v, string ans, string r, string num)
     {
         category = c;
@@ -33,15 +43,15 @@ public:
         round = r;
         show_number = num;
     }
-    Question& operator = (const Question &t)
+    Question &operator=(const Question &t)
     {
-        this -> category = t.category;
-        this -> air_date = t.air_date;
-        this -> question = t.question;
-        this -> value = t.value;
-        this -> answer = t.answer;
-        this -> round = t.round;
-        this -> show_number = t.show_number;
+        this->category = t.category;
+        this->air_date = t.air_date;
+        this->question = t.question;
+        this->value = t.value;
+        this->answer = t.answer;
+        this->round = t.round;
+        this->show_number = t.show_number;
         return *this;
     }
     string getRound()

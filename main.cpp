@@ -168,6 +168,57 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
+void merge (vector<Question> &questions, int start, int mid, int end){
+    int n1 = mid - start + 1;
+    int n2 = end - mid;
+
+    vector<Question> x(n1);
+    vector<Question> y(n2);
+
+    for (int i = 0; i < n1; i++)
+        x[i] = questions[start + i];
+
+    for(int i = 0; i < n2; i ++)
+        y[i] = questions[(mid+1) +i];
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < n1 && j < n2){
+        if (x[i].getValue() <= y[j].getValue()) {
+            questions[k] = x[i];
+            i++;
+        } else {
+            questions[k] = y[j];
+            j++;
+        }
+
+        k++;
+    }
+
+    while (i < n1) {
+        questions[k] = x[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        questions[k] = y[j];
+        j++;
+        k++;
+    }
+
+}
+
+void mergeSort (vector<Question> &questions, int start, int end) {
+    int mid;
+    if (start < end){
+        mid = (start + end) / 2;
+        mergeSort(questions, start, mid);
+        mergeSort(questions, mid+1, end);
+
+        merge(questions, start, mid, end);
+    }
+
 void heapSort(vector<Question> &questions, vector<Question> &sorted)
 {
     // make_heap(questions.begin(), questions.end(), Question::HeapSwap());
@@ -179,6 +230,7 @@ void heapSort(vector<Question> &questions, vector<Question> &sorted)
     //     sorted.push_back(max);
     //     questions.pop_back();
     // }
+
 }
 
 void writeScore(string name, int correct, int total)
@@ -320,6 +372,7 @@ bool resetScore(string name)
                     fout << endl;
                 }
             }
+
             else
             {
                 found = true;
@@ -359,6 +412,7 @@ void play(Question q, int &numRight)
         cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
     }
 }
+  
 int main()
 {
     vector<Question> questions;  //vector of all questions
@@ -375,6 +429,7 @@ int main()
     string name; //holds the initials to track users
     cout << "Please enter your name for score tracking: ";
     getline(cin, name);
+
     transform(name.begin(), name.end(), name.begin(), ::toupper);
 
     int correct = 0, total = 0; //number of correct questions and total questions
@@ -547,8 +602,10 @@ int main()
         {
             string option;
             cout << "Are you viewing your own score? (y/n) ";
+
             cin.ignore(); //prevents weird errors with getline
             getline(cin, option);
+
             if (option == "y")
             {
                 cout << "Please note: These scores will not include statistics from this session." << endl;
@@ -557,6 +614,7 @@ int main()
             else
             {
                 cout << "Whose score would you like to view? ";
+
                 getline(cin, option);
                 readScore(option); //pulls up the specified user's score
             }
@@ -619,12 +677,14 @@ int main()
         {
             string option, option2, option3;
             cout << "Would you like to reset scores for all users? (y/n) ";
+
             cin.ignore(); //prevents weird errors with getline
             getline(cin, option);
             if (option == "y")
             {
                 cout << "Are you sure? This cannot be undone! (y/n) ";
                 getline(cin, option2);
+
                 if (option2 == "y")
                 {
                     cout << "Resetting scores..." << endl;
@@ -665,6 +725,7 @@ int main()
                     }
                     else if (!found)
                     {
+
                         cout << "No scores found for " << option3 << ". No reset was performed." << endl;
                     }
                 }

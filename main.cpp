@@ -251,44 +251,45 @@ void heapify(vector<Question> &theheap, int index, int size)
     }
 }
 
-void heapSort(vector<Question> &questions)
-{
-    int size = questions.size();
-    // heapify(questions, 0, size);
-
-    for (int i = size / 2 - 1; i >= 0; i--)
-        heapify(questions, i, size);
-
-    // One by one extract an element from heap
-    for (int i = size - 1; i > 0; i--)
+    void heapSort(vector<Question> & questions)
     {
-        // Move current root to end
-        swap(questions, 0, i);
+        int size = questions.size();
+        // heapify(questions, 0, size);
 
-        // call max heapify on the reduced heap
-        heapify(questions, 0, i);
-    }
-}
+        for (int i = size / 2 - 1; i >= 0; i--)
+            heapify(questions, i, size);
 
-void writeScore(string name, int correct, int total)
-{
-    fstream fin, fout;
-    fin.open("scores.csv", ios::in);
-    fout.open("scoresnew.csv", ios::out);
-
-    string line, word;
-    vector<string> row;
-    while (!fin.eof())
-    {
-
-        row.clear();
-
-        getline(fin, line);
-        stringstream s(line);
-
-        while (getline(s, word, ','))
+        // One by one extract an element from heap
+        for (int i = size - 1; i > 0; i--)
         {
-            row.push_back(word);
+            // Move current root to end
+            swap(questions, 0, i);
+
+            // call max heapify on the reduced heap
+            heapify(questions, 0, i);
+        }
+    }
+
+    void writeScore(string name, int correct, int total)
+    {
+        fstream fin, fout;
+        fin.open("scores.csv", ios::in);
+        fout.open("scoresnew.csv", ios::out);
+
+        string line, word;
+        vector<string> row;
+        while (!fin.eof())
+        {
+
+
+            row.clear();
+
+            getline(fin, line);
+            stringstream s(line);
+
+            while (getline(s, word, ','))
+            {
+                row.push_back(word);
             if (row[0] == name)
             { //updating the record if the name exists
                 int n_correct = correct + stoi(row[1]);
@@ -320,10 +321,16 @@ void writeScore(string name, int correct, int total)
             }
             else //if the row is empty, append the new data
             {
-                double percent = (double)correct / total * 100.0;
+                double percent = correct / total * 100;
                 fout << name << ", " << correct << ", " << total << ", " << percent;
             }
         }
+        else //if the row is empty, append the new data
+        {
+            double percent = (double)correct / total * 100.0;
+            fout << name << ", " << correct << ", " << total << ", " << percent;
+        }
+    }
 
         fin.close();
         fout.close();
@@ -334,40 +341,22 @@ void writeScore(string name, int correct, int total)
         // renaming the updated file with the existing file name
         rename("scoresnew.csv", "scores.csv");
     }
-}
 
-void readScore(string name)
-{
-    fstream fin;
-    fin.open("scores.csv", ios::in);
-
-    string line, word;
-    vector<string> row;
-    while (!fin.eof())
+    void readScore(string name)
     {
+        fstream fin;
+        fin.open("scores.csv", ios::in);
 
-        row.clear();
+        string line, word;
+        vector<string> row;
+        while (!fin.eof())
+        {
 
-        getline(fin, line);
-        stringstream s(line);
+            row.clear();
 
-        while (getline(s, word, ','))
-        {
-            row.push_back(word);
-        }
-        if (row.size() != 0) // checking if the row is empty
-        {
-            if (row[0] == name)
-            { //updating the record if the name exists
-                cout << "Name: " << row[0] << endl;
-                cout << "Lifetime Correct Answers:" << row[1] << endl;
-                cout << "Lifetime Total Questions:" << row[2] << endl;
-                cout << "Percent Correct:" << row[3] << "%" << endl;
-            }
-        }
-        else //if the row is empty, append the new data
-        {
-            cout << name << " has no logged scores." << endl;
+
+            getline(fin, line);
+            stringstream s(line);
 
             while (getline(s, word, ','))
             {
@@ -381,37 +370,11 @@ void readScore(string name)
                     cout << "Lifetime Correct Answers:" << row[1] << endl;
                     cout << "Lifetime Total Questions:" << row[2] << endl;
                     cout << "Percent Correct:" << row[3] << "%" << endl;
-                    break;
                 }
             }
-        }
-    }
-    fin.close();
-}
-
-void resetScores()
-{
-    remove("scores.csv");
-    fstream fout;
-    fout.open("scores.csv", ios::out);
-    fout.close();
-}
-bool resetScore(string name)
-{
-    bool found = false;
-    fstream fin, fout;
-    fin.open("scores.csv", ios::in);
-    fout.open("scoresnew.csv", ios::out);
-
-    string line, word;
-    vector<string> row;
-    while (!fin.eof())
-    {
-
-        row.clear();
-
-        getline(fin, line);
-        stringstream s(line);
+            else //if the row is empty, append the new data
+            {
+                cout << name << " has no logged scores." << endl;
 
         while (getline(s, word, ','))
         {
@@ -419,57 +382,100 @@ bool resetScore(string name)
         }
         if (row.size() != 0) // checking if the row is empty
         {
-            if (row[0] != name)
-            {
-                for (unsigned int i = 0; i < row.size(); i++)
-                { //otherwise just rewrite what's already there
-                    fout << row[i];
-                    if (i < row.size() - 1)
-                    {
-                        fout << ", ";
-                    }
-                    fout << endl;
-                }
-            }
-
-            else
-            {
-                found = true;
+            if (row[0] == name)
+            { //updating the record if the name exists
+                cout << "Name: " << row[0] << endl;
+                cout << "Lifetime Correct Answers:" << row[1] << endl;
+                cout << "Lifetime Total Questions:" << row[2] << endl;
+                cout << "Percent Correct:" << row[3] << "%" << endl;
+                break;
             }
         }
+
+        fin.close();
     }
 
-    fin.close();
-    fout.close();
-
-    // removing the existing file
-    remove("scores.csv");
-
-    // renaming the updated file with the existing file name
-    rename("scoresnew.csv", "scores.csv");
-    return found;
-}
-
-void play(Question q, int &numRight)
-{
-
-    bool correct = false;
-    if (q.getRound() == "Final Jeopardy!")
+    void resetScores()
     {
-        correct = q.playFinal();
+        remove("scores.csv");
+        fstream fout;
+        fout.open("scores.csv", ios::out);
+        fout.close();
     }
-    else
+    bool resetScore(string name)
     {
-        correct = q.playNormal();
+        bool found = false;
+        fstream fin, fout;
+        fin.open("scores.csv", ios::in);
+        fout.open("scoresnew.csv", ios::out);
+
+        string line, word;
+        vector<string> row;
+        while (!fin.eof())
+        {
+
+            row.clear();
+
+            getline(fin, line);
+            stringstream s(line);
+
+            while (getline(s, word, ','))
+            {
+                row.push_back(word);
+            }
+            if (row.size() != 0) // checking if the row is empty
+            {
+                if (row[0] != name)
+                {
+                    for (unsigned int i = 0; i < row.size(); i++)
+                    { //otherwise just rewrite what's already there
+                        fout << row[i];
+                        if (i < row.size() - 1)
+                        {
+                            fout << ", ";
+                        }
+                        fout << endl;
+                    }
+                }
+
+                else
+                {
+                    found = true;
+                }
+            }
+        }
+
+        fin.close();
+        fout.close();
+
+        // removing the existing file
+        remove("scores.csv");
+
+        // renaming the updated file with the existing file name
+        rename("scoresnew.csv", "scores.csv");
+        return found;
     }
-    if (correct)
+
+    void play(Question q, int &numRight)
     {
-        cout << "Correct! The full answer in our database was: " << q.getAnswer() << endl;
-        numRight++;
-    }
-    else
-    {
-        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
+
+        bool correct = false;
+        if (q.getRound() == "Final Jeopardy!")
+        {
+            correct = q.playFinal();
+        }
+        else
+        {
+            correct = q.playNormal();
+        }
+        if (correct)
+        {
+            cout << "Correct! The full answer in our database was: " << q.getAnswer() << endl;
+            numRight++;
+        }
+        else
+        {
+            cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
 
         cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << "\n";
 
@@ -489,63 +495,62 @@ void play(Question q, int &numRight)
             cout << "Sorry about that! Your scores have been fixed.\n";
         }
     }
-}
 
-int main()
-{
-    vector<Question> questions;  //vector of all questions
-    vector<Question> no_final;   //vector of questions without final jeopardys because their values can't be sorted
-    vector<Question> only_final; //only final Jeopardy! questions for option 3
-    vector<Question> exam;       //vector to hold all the questions in the practice exam
-
-    srand(time(NULL)); //seeds the random algorithm with the current time to make the questions appears
-
-    cout << "Loading Jeopardy! questions..." << endl;
-    readFile(questions);
-    cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
-
-    string name; //holds the initials to track users
-    cout << "Please enter your name for score tracking: ";
-    getline(cin, name);
-
-    transform(name.begin(), name.end(), name.begin(), ::toupper);
-
-    int correct = 0, total = 0; //number of correct questions and total questions
-
-    bool running = true;
-    while (running)
+    int main()
     {
-        int option = menu();
+        vector<Question> questions;  //vector of all questions
+        vector<Question> no_final;   //vector of questions without final jeopardys because their values can't be sorted
+        vector<Question> only_final; //only final Jeopardy! questions for option 3
+        vector<Question> exam;       //vector to hold all the questions in the practice exam
 
-        if (option == 1)
+        srand(time(NULL)); //seeds the random algorithm with the current time to make the questions appears
+
+        cout << "Loading Jeopardy! questions..." << endl;
+        readFile(questions);
+        cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
+
+        string name; //holds the initials to track users
+        cout << "Please enter your name for score tracking: ";
+        getline(cin, name);
+
+        transform(name.begin(), name.end(), name.begin(), ::toupper);
+
+        int correct = 0, total = 0; //number of correct questions and total questions
+
+        bool running = true;
+        while (running)
         {
-            exam.clear();
-            int random = 0;
-            unordered_set<int> indexes; //this is going ot be used to track the indexes so we don't get duplicates
-            while (indexes.size() < 50)
+            int option = menu();
+
+            if (option == 1)
             {
-                random = rand() % (questions.size() - 1);
-                if (indexes.find(random) == indexes.end())
+                exam.clear();
+                int random = 0;
+                unordered_set<int> indexes; //this is going ot be used to track the indexes so we don't get duplicates
+                while (indexes.size() < 50)
                 {
-                    indexes.emplace(random);
-                    exam.push_back(questions[random]);
+                    random = rand() % (questions.size() - 1);
+                    if (indexes.find(random) == indexes.end())
+                    {
+                        indexes.emplace(random);
+                        exam.push_back(questions[random]);
+                    }
+                }
+                //printing out the instructions for the exam
+                cout << "You are about to take a practice Jeopardy! exam. This exam has the same format as the one "
+                     << "given to potential competitors on the show." << endl;
+                cout << "There are 50 questions. We will not time you, but you should try to answer quickly.";
+                cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
+                cout << "There is also no need to answer in the form of a question." << endl;
+                cout << "Please type 'y' when you are ready to begin." << endl;
+                string begin;
+                cin.ignore(); //prevents weird errors with getline
+                getline(cin, begin);
+                while (begin != "y")
+                {
+                    cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
                 }
             }
-            //printing out the instructions for the exam
-            cout << "You are about to take a practice Jeopardy! exam. This exam has the same format as the one "
-                 << "given to potential competitors on the show." << endl;
-            cout << "There are 50 questions. We will not time you, but you should try to answer quickly.";
-            cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
-            cout << "There is also no need to answer in the form of a question." << endl;
-            cout << "Please type 'y' when you are ready to begin." << endl;
-            string begin;
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, begin);
-            while (begin != "y")
-            {
-                cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
-            }
-
             //printing out the instructions for the exam
             cout << "You are about to take a practice Jeopardy! exam. This exam has the same format as the one "
                  << "given to potential competitors on the show." << endl;
@@ -562,46 +567,21 @@ int main()
                 getline(cin, begin);
             }
 
-            unordered_map<string, Question> incorrect;
-            int right = 0;
-            string attempt;
-            bool gotIt = false;
+                unordered_map<string, Question> incorrect;
+                int right = 0;
+                string attempt;
+                bool gotIt = false;
 
-            cout << "\n"
-                 << setfill('*') << setw(80) << "\n";
-            cout << setfill(' ') << setw(35) << "\n\n\nEXAM START\n\n\n"
-                 << setfill(' ') << setw(35) << "\n";
-            cout << setfill('*') << setw(80) << "\n";
+                cout << "\n"
+                     << setfill('*') << setw(80) << "\n";
+                cout << setfill(' ') << setw(35) << "\n\n\nEXAM START\n\n\n"
+                     << setfill(' ') << setw(35) << "\n";
+                cout << setfill('*') << setw(80) << "\n";
 
-            for (Question q : exam)
-            {
-                cout << "\n\nExit by typing 'exit' at any time.\n\n";
-                cout << q.getQuestion() << endl;
-                cout << "Answer: ";
-                getline(cin, attempt);
-                if (attempt == "exit")
-                {
-                    break;
-                }
-                gotIt = q.checkAnswer(attempt);
-                if (gotIt)
-                {
-                    right++;
-                    correct++;
-                    total++; //doing it individually avoids screwing up the scores if the user leaves early
-                }
-                else
-                {
-                    incorrect.emplace(attempt, q);
-                    total++;
-                }
-                cout << "\n\nExit by typing 'exit' at any time.";
-                int qNum = 0; //holds the number of questions so far in the exam
                 for (Question q : exam)
                 {
-                    cout << "\n\nCategory: " << q.getCategory() << endl;
-                    cout << "Question: "
-                         << q.getQuestion() << endl;
+                    cout << "\n\nExit by typing 'exit' at any time.\n\n";
+                    cout << q.getQuestion() << endl;
                     cout << "Answer: ";
                     getline(cin, attempt);
                     if (attempt == "exit")
@@ -609,64 +589,89 @@ int main()
                         break;
                     }
                     gotIt = q.checkAnswer(attempt);
-                    total++; //doing it individually avoids screwing up the scores if the user leaves early
-                    qNum++;
                     if (gotIt)
                     {
                         right++;
                         correct++;
+                        total++; //doing it individually avoids screwing up the scores if the user leaves early
                     }
-                    cout << "\n"
-                         << setfill('*') << setw(80) << "\n";
-                    cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
-                         << setfill(' ') << setw(36) << "\n";
-                    cout << setfill('*') << setw(80) << "\n";
-                    cout << "Your score was: " << (right / 50.0) * 100 << "%"
-                         << "\n";
-                    if (right < 50)
+                    else
                     {
-                        cout << "Would you like to go over your wrong answers? (y/n) ";
-                        string choice;
+                        incorrect.emplace(attempt, q);
+                        total++;
+                    }
+            cout << "\n\nExit by typing 'exit' at any time.";
+            int qNum = 0; //holds the number of questions so far in the exam
+            for (Question q : exam)
+            {
+                cout << "\n\nCategory: " << q.getCategory() << endl;
+                cout << "Question: "
+                     << q.getQuestion() << endl;
+                cout << "Answer: ";
+                getline(cin, attempt);
+                if (attempt == "exit")
+                {
+                    break;
+                }
+                gotIt = q.checkAnswer(attempt);
+                total++; //doing it individually avoids screwing up the scores if the user leaves early
+                qNum++;
+                if (gotIt)
+                {
+                    right++;
+                    correct++;
+                }
+                cout << "\n"
+                     << setfill('*') << setw(80) << "\n";
+                cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
+                     << setfill(' ') << setw(36) << "\n";
+                cout << setfill('*') << setw(80) << "\n";
+                cout << "Your score was: " << (right / 50.0) * 100 << "%"
+                     << "\n";
+                if (right < 50)
+                {
+                    cout << "Would you like to go over your wrong answers? (y/n) ";
+                    string choice;
+                    getline(cin, choice);
+                    while (choice != "y" && choice != "n")
+                    {
+                        cout << "\nInvalid choice! Please enter 'y' or 'n'. ";
                         getline(cin, choice);
-                        while (choice != "y" && choice != "n")
+                    }
+                    if (choice == "y")
+                    {
+                        cout << "You had " << 50 - right << " wrong answers.";
+                        cout << " They will be listed here in the same order as on the exam." << endl;
+                        for (auto it = incorrect.begin(); it != incorrect.end(); it++)
                         {
-                            cout << "\nInvalid choice! Please enter 'y' or 'n'. ";
-                            getline(cin, choice);
-                        }
-                        if (choice == "y")
-                        {
-                            cout << "You had " << 50 - right << " wrong answers.";
-                            cout << " They will be listed here in the same order as on the exam." << endl;
-                            for (auto it = incorrect.begin(); it != incorrect.end(); it++)
-                            {
-                                cout << "\nThe question was: " << it->second.getQuestion() << endl;
-                                cout << "Your answer was: " << it->first << endl;
-                                cout << "The correct answer was: " << it->second.getAnswer() << "\n"
-                                     << endl;
-                            }
+                            cout << "\nThe question was: " << it->second.getQuestion() << endl;
+                            cout << "Your answer was: " << it->first << endl;
+                            cout << "The correct answer was: " << it->second.getAnswer() << "\n"
+                                 << endl;
                         }
                     }
                 }
-                else if (option == 2)
-                    incorrect.emplace(attempt, q);
             }
-        }
-        cout << "\n"
-             << setfill('*') << setw(80) << "\n";
-        cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
-             << setfill(' ') << setw(36) << "\n";
-        cout << setfill('*') << setw(80) << "\n";
-        cout << "Your score was: " << (right / (double)qNum) * 100 << "%"
-             << "\n";
-        if (right < 50)
-        {
-            no_final.clear();
-            cout << "Removing unusable Final Jeopardy! questions..." << endl;
-            for (Question q : questions)
+            else if (option == 2)
+                    incorrect.emplace(attempt, q);
+                }
+            }
+            cout << "\n"
+                 << setfill('*') << setw(80) << "\n";
+            cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
+                 << setfill(' ') << setw(36) << "\n";
+            cout << setfill('*') << setw(80) << "\n";
+            cout << "Your score was: " << (right / (double)qNum) * 100 << "%"
+                 << "\n";
+            if (right < 50)
             {
-                if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
+                no_final.clear();
+                cout << "Removing unusable Final Jeopardy! questions..." << endl;
+                for (Question q : questions)
                 {
-                    no_final.push_back(q);
+                    if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
+                    {
+                        no_final.push_back(q);
                     cout << "You had " << qNum - right << " wrong answers out of " << qNum << " total.";
                     cout << " They will be listed here in the same order as on the exam.\n";
                     for (auto it = incorrect.begin(); it != incorrect.end(); it++)
@@ -828,6 +833,7 @@ int main()
                 cin.ignore(); //prevents weird errors with getline
                 getline(cin, option);
 
+
                 if (option == "y")
                 {
                     readScore(name); //views the current users score
@@ -835,32 +841,6 @@ int main()
                 else
                 {
                     cout << "Whose score would you like to view? ";
-
-                    cout << "Updating scores to reflect progress this session...\n";
-                    writeScore(name, correct, total);
-                    //zeroing out the scores after they've been recorded so things don't get double counted
-                    total = 0;
-                    correct = 0;
-                    cout << "Scores updated!\n";
-                }
-                else
-                {
-                    cout << "No questions have been answered this session! No update was performed.\n";
-                }
-            }
-            else if (option == 8)
-            {
-                string option, option2, option3;
-                cout << "Would you like to reset scores for all users? (y/n) ";
-
-                getline(cin, option);
-                readScore(option); //pulls up the specified user's score
-            }
-        }
-        else if (option == 7)
-        {
-            if (total != 0)
-            {
 
                 cout << "Updating scores to reflect progress this session...\n";
                 writeScore(name, correct, total);
@@ -871,7 +851,7 @@ int main()
             }
             else
             {
-                cout << "No questions have been given this session! No update was performed.\n";
+                cout << "No questions have been answered this session! No update was performed.\n";
             }
         }
         else if (option == 8)
@@ -879,76 +859,102 @@ int main()
             string option, option2, option3;
             cout << "Would you like to reset scores for all users? (y/n) ";
 
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, option);
-            if (option == "y")
-            {
-                cout << "Are you sure? This cannot be undone! (y/n) ";
-                getline(cin, option2);
-
-                if (option2 == "y")
-                {
-                    cout << "Resetting scores..." << endl;
-                    resetScores();
-                    cout << "Scores successfully reset." << endl;
+                    getline(cin, option);
+                    readScore(option); //pulls up the specified user's score
                 }
             }
-            else if (option == "n")
+            else if (option == 7)
             {
-                cout << "Are you erasing your own scores? (y/n) ";
-                getline(cin, option2);
-                if (option2 == "y")
+                if (total != 0)
                 {
-                    cout << "Resetting your scores..." << endl;
-                    bool found = resetScore(name);
-                    if (found)
-                    {
-                        cout << "Your scores were reset." << endl;
-                    }
-                    else if (!found)
-                    {
-                        cout << "You had no scores logged. No reset was performed." << endl;
-                    }
-                }
-                else if (option2 == "n")
-                {
-                    cout << "Whose scores would you like to reset? ";
-                    getline(cin, option3);
-                    cout << "Resetting scores for " << option3 << "..." << endl;
-                    bool found = resetScore(option3);
-                    if (found)
-                    {
-                        cout << "Scores for " << option3 << " have been reset." << endl;
-                    }
-                    else if (!found)
-                    {
 
-                        cout << "No scores found for " << option3 << ". No reset was performed." << endl;
-                    }
+                    cout << "Updating scores to reflect progress this session...\n";
+                    writeScore(name, correct, total);
+                    //zeroing out the scores after they've been recorded so things don't get double counted
+                    total = 0;
+                    correct = 0;
+                    cout << "Scores updated!\n";
+                }
+                else
+                {
+                    cout << "No questions have been given this session! No update was performed.\n";
                 }
             }
-            else
+            else if (option == 8)
             {
+                string option, option2, option3;
+                cout << "Would you like to reset scores for all users? (y/n) ";
+
+                cin.ignore(); //prevents weird errors with getline
+                getline(cin, option);
+                if (option == "y")
+                {
+                    cout << "Are you sure? This cannot be undone! (y/n) ";
+                    getline(cin, option2);
+
+                    if (option2 == "y")
+                    {
+                        cout << "Resetting scores..." << endl;
+                        resetScores();
+                        cout << "Scores successfully reset." << endl;
+                    }
+                }
+                else if (option == "n")
+                {
+                    cout << "Are you erasing your own scores? (y/n) ";
+                    getline(cin, option2);
+                    if (option2 == "y")
+                    {
+                        cout << "Resetting your scores..." << endl;
+                        bool found = resetScore(name);
+                        if (found)
+                        {
+                            cout << "Your scores were reset." << endl;
+                        }
+                        else if (!found)
+                        {
+                            cout << "You had no scores logged. No reset was performed." << endl;
+                        }
+                    }
+                    else if (option2 == "n")
+                    {
+                        cout << "Whose scores would you like to reset? ";
+                        getline(cin, option3);
+                        cout << "Resetting scores for " << option3 << "..." << endl;
+                        bool found = resetScore(option3);
+                        if (found)
+                        {
+                            cout << "Scores for " << option3 << " have been reset." << endl;
+                        }
+                        else if (!found)
+                        {
+
+                            cout << "No scores found for " << option3 << ". No reset was performed." << endl;
+                        }
+                    }
+                }
+                else
+                {
+                }
+            }
+            else if (option == 9)
+            {
+
+                if (total != 0)
+                {
+                    cout << "Logging your scores..." << endl;
+                    writeScore(name, correct, total);
+                    cout << "Scores successfully logged." << endl;
+                }
+                else
+                {
+                    cout << "No questions were given this session. Scores will not be updated." << endl;
+                }
+                cout << "Bye!\n\n";
+                running = false;
+
+                cout << "No questions were answered this session. Scores will not be updated." << endl;
             }
         }
-        else if (option == 9)
-        {
-
-            if (total != 0)
-            {
-                cout << "Logging your scores..." << endl;
-                writeScore(name, correct, total);
-                cout << "Scores successfully logged." << endl;
-            }
-            else
-            {
-                cout << "No questions were given this session. Scores will not be updated." << endl;
-            }
-            cout << "Bye!\n\n";
-            running = false;
-
-            cout << "No questions were answered this session. Scores will not be updated." << endl;
-        }
+        return 0;
     }
-    return 0;
-}

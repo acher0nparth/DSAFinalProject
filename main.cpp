@@ -7,6 +7,7 @@
 #include "json.hpp"
 #include <chrono>
 #include <bits/stdc++.h>
+#include <time.h>
 using namespace std;
 using json = nlohmann::json;
 
@@ -109,11 +110,11 @@ void readFile(vector<Question> &questions)
 int menu()
 {
     int option = -1;
-    cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice by Category\n";
+    cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice Jeopardy! Exam\n";
     cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
     cout << "4. Random Question\n5. Scores\n6. Sorting Algorithm Performance\n7. Reset Scores\n8. Exit\n";
     cin >> option;
-    while (option > 7 || option < 1)
+    while (option > 8 || option < 1)
     {
         cout << "Please enter a valid menu selection!" << endl;
         cin >> option;
@@ -164,19 +165,17 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-// void heapSort(vector<Question> &questions, vector<Question> sorted)
+// void heapSort(vector<Question> &questions, vector<Question> &sorted)
 // {
-//     //int size = questions.size();
 //     make_heap(questions.begin(), questions.end());
 
 //     while (!questions.empty())
 //     {
-//         Question max = questions.front();
 //         pop_heap(questions.begin(), questions.end());
+//         Question max = questions.back();
 //         sorted.push_back(max);
+//         questions.pop_back();
 //     }
-
-//     //return sorted;
 // }
 
 void writeScore(string name, int correct, int total)
@@ -318,7 +317,8 @@ bool resetScore(string name)
                     fout << endl;
                 }
             }
-            else {
+            else
+            {
                 found = true;
             }
         }
@@ -335,10 +335,35 @@ bool resetScore(string name)
     return found;
 }
 
+void play(Question q, int& numRight)
+{
+    bool correct = false;
+    if (q.getRound() == "Final Jeopardy!")
+    {
+        correct = q.playFinal();
+    }
+    else
+    {
+        correct = q.playNormal();
+    }
+    if (correct)
+    {
+        cout << "Correct! The full answer in our database was: " << q.getAnswer() << endl;
+        numRight++;
+    }
+    else
+    {
+        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
+    }
+}
 int main()
 {
-    vector<Question> questions; //vector of all questions
-    vector<Question> no_final;  //vector of questions without final jeopardys because their values can't be sorted
+    vector<Question> questions;  //vector of all questions
+    vector<Question> no_final;   //vector of questions without final jeopardys because their values can't be sorted
+    vector<Question> only_final; //only final Jeopardy! questions for option 3
+
+    srand(time(NULL)); //seeds the random algorithm with the current time to make the questions appear more random
+    
     cout << "Loading Jeopardy! questions..." << endl;
     readFile(questions);
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
@@ -360,12 +385,61 @@ int main()
         }
         else if (option == 2)
         {
+            no_final.clear();
+            cout << "Removing unusable Final Jeopardy! questions..." << endl;
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
+                {
+                    no_final.push_back(q);
+                }
+            }
+            cout << "Final Jeopardy! questions removed." << endl;
+
+            cout << "Sorting questions using QuickSort..." << endl;
+            quickSort(no_final, 0, no_final.size() - 1);
+            cout << "Questions sorted! What dollar value of question would you like? ";
+            int option = 1;
+            while (option % 200 != 0)
+            {
+                cin >> option;
+                if (option % 200 != 0)
+                {
+                    cout << "\nInvalid number! The numbers are in $200 increments from $200 - $2000."
+                         << " Please enter a new selection: ";
+                }
+            }
+            bool going = true;
+            while (going) //this should get a random question of the specified value
+            {
+                int random = rand() % (no_final.size() - 1);
+                Question q = no_final[random];
+                if (q.getValue() == option)
+                {
+                    play(q, correct);
+                    total++;
+                    going = false;
+                }
+            }
         }
         else if (option == 3)
         {
+            for (Question q : questions)
+            {
+                if (q.getRound() == "Final Jeopardy!")
+                {
+                    only_final.push_back(q);
+                }
+            }
+            int random = rand() % (only_final.size() - 1);
+            play(only_final[random], correct);
+            total++;
         }
         else if (option == 4)
         {
+            int random = rand() % (questions.size() - 1);
+            play(questions[random], correct);
+            total++;
         }
         else if (option == 5)
         {
@@ -453,6 +527,10 @@ int main()
                     cout << "Scores successfully reset." << endl;
                 }
             }
+            else if (option == "n")
+            {
+                continue;
+            }
             else
             {
                 cout << "Are you erasing your own scores? (y/n) ";
@@ -461,22 +539,27 @@ int main()
                 {
                     cout << "Resetting your scores..." << endl;
                     bool found = resetScore(name);
-                    if (found){
-                    cout << "Your scores were reset." << endl;
+                    if (found)
+                    {
+                        cout << "Your scores were reset." << endl;
                     }
-                    else if (!found){
+                    else if (!found)
+                    {
                         cout << "You had no scores logged. No reset was performed." << endl;
                     }
                 }
-                else {
+                else
+                {
                     cout << "Whose scores would you like to reset? ";
                     cin >> option3;
                     cout << "Resetting scores for " << name << "..." << endl;
                     bool found = resetScore(option3);
-                    if (found){
+                    if (found)
+                    {
                         cout << "Scores for " << option3 << " have been reset." << endl;
                     }
-                    else if (!found){
+                    else if (!found)
+                    {
                         cout << "No scores found for " << option3 << ". No reset was performed." << endl;
                     }
                 }

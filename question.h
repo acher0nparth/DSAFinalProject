@@ -45,4 +45,41 @@ public:
     {
         return question;
     }
+    bool checkAnswer(string attempt)
+    {
+        if (answer.find(attempt) == string::npos) //the attempt string is not found in the answer
+            return false;
+        else
+            return true;
+    }
+    bool playNormal()
+    {
+        string attempt;
+        cout << "\nThis is a " << round << " question!" << endl;
+        cout << "This question's category is: " << category << endl;
+        cout << "For $" << value << ", " << question << endl;
+        cout << "What is your answer? ";
+        cin >> attempt;
+        return checkAnswer(attempt);
+    }
+    string getAnswer()
+    {
+        return answer;
+    }
+    bool playFinal()
+    {
+        if (round == "Final Jeopardy!")
+        {
+            string attempt;
+            cout << "\nThis question's category is: " << category << endl;
+            cout << "The question is: " << question << endl;
+            cin >> attempt;
+            return checkAnswer(attempt);
+        }
+        else
+        {
+            cout << "This question isn't a final Jeopardy! Mx. Programmer! Fix your code :D" << endl;
+            return false;
+        }
+    }
 };

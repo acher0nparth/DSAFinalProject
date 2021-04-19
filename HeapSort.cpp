@@ -164,17 +164,18 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-void heapSort(vector<Question> &questions, vector<Question> sorted) {
-    make_heap(questions.begin(), questions.end());
+// void heapSort(vector<Question> &questions, vector<Question> sorted)
+// {
+//     make_heap(questions.begin(), questions.end());
 
-    while(!questions.empty()){
-        pop_heap(questions.begin(), questions.end());
-        Question max = questions.back();
-        sorted.push_back(max);
-        questions.pop_back();
-    }
-}
-
+//     while (!questions.empty())
+//     {
+//         pop_heap(questions.begin(), questions.end());
+//         Question max = questions.back();
+//         sorted.push_back(max);
+//         questions.pop_back();
+//     }
+// }
 
 void writeScore(string name, int correct, int total)
 {
@@ -315,7 +316,8 @@ bool resetScore(string name)
                     fout << endl;
                 }
             }
-            else {
+            else
+            {
                 found = true;
             }
         }
@@ -414,25 +416,25 @@ int main()
             cout << "Questions successfully reset for the next sort." << endl;
 
             //heapSort
-             start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+            start = chrono::high_resolution_clock::now(); //saves the time before heapsort
 
-             vector<Question> sorted;
-             heapSort(no_final, sorted);
+            vector<Question> sorted;
+            heapSort(no_final, sorted);
 
-             end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
-             time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-             time_taken *= 1e-9;
-             cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
-                  << " seconds" << endl;
-             no_final.clear(); //empties the sorted vector
-             for (Question q : questions)
-             {
-                 if (q.getRound() != "Final Jeopardy!")
-                 {
-                     no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
-                 }
-             }
-             cout << "Questions successfully reset for the next sort." << endl;
+            end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            time_taken *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+                 << " seconds" << endl;
+            no_final.clear(); //empties the sorted vector
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!")
+                {
+                    no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+                }
+            }
+            cout << "Questions successfully reset for the next sort." << endl;
         }
         else if (option == 7)
         {
@@ -458,22 +460,27 @@ int main()
                 {
                     cout << "Resetting your scores..." << endl;
                     bool found = resetScore(name);
-                    if (found){
-                    cout << "Your scores were reset." << endl;
+                    if (found)
+                    {
+                        cout << "Your scores were reset." << endl;
                     }
-                    else if (!found){
+                    else if (!found)
+                    {
                         cout << "You had no scores logged. No reset was performed." << endl;
                     }
                 }
-                else {
+                else
+                {
                     cout << "Whose scores would you like to reset? ";
                     cin >> option3;
                     cout << "Resetting scores for " << name << "..." << endl;
                     bool found = resetScore(option3);
-                    if (found){
+                    if (found)
+                    {
                         cout << "Scores for " << option3 << " have been reset." << endl;
                     }
-                    else if (!found){
+                    else if (!found)
+                    {
                         cout << "No scores found for " << option3 << ". No reset was performed." << endl;
                     }
                 }

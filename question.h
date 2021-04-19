@@ -83,8 +83,11 @@ public:
     }
     bool checkAnswer(string attempt)
     {
+        if (attempt == "") //covers the edge case of an accidental submission
+        {
+            return false;
+        }
         //put both strings to lowercase so the check is case insensitive
-
         transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
         transform(attempt.begin(), attempt.end(), attempt.begin(), ::tolower);
         if (answer.find(attempt) == string::npos) //the attempt string is not found in the answer

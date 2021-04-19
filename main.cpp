@@ -269,7 +269,7 @@ void writeScore(string name, int correct, int total)
             { //updating the record if the name exists
                 int n_correct = correct + stoi(row[1]);
                 int n_total = total + stoi(row[2]);
-                double n_percent = n_correct / n_total * 100;
+                double n_percent = (double)n_correct / n_total * 100.0;
                 fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
             }
             else
@@ -287,7 +287,7 @@ void writeScore(string name, int correct, int total)
         }
         else //if the row is empty, append the new data
         {
-            double percent = correct / total * 100;
+            double percent = (double)correct / total * 100.0;
             fout << name << ", " << correct << ", " << total << ", " << percent;
         }
     }
@@ -329,6 +329,7 @@ void readScore(string name)
                 cout << "Lifetime Correct Answers:" << row[1] << endl;
                 cout << "Lifetime Total Questions:" << row[2] << endl;
                 cout << "Percent Correct:" << row[3] << "%" << endl;
+                break;
             }
         }
         else //if the row is empty, append the new data
@@ -419,7 +420,23 @@ void play(Question q, int &numRight)
     }
     else
     {
-        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
+        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << "\n";
+
+        //even if we mistakenly give them credit, just let them have it. only check for misgrades if its wrong
+        cout << "Did we mis-grade this question? (y/n) ";
+        string misGrade;
+        getline(cin, misGrade);
+        if (misGrade == "y")
+        {
+            cout << "\nHow many did we mis-grade? ";
+            string fix;
+            getline(cin, fix);
+            if (stoi(fix) > 0)
+            {
+                numRight += stoi(fix);
+            }
+            cout << "Sorry about that! Your scores have been fixed.\n";
+        }
     }
 }
 
@@ -469,13 +486,14 @@ int main()
             cout << "There are 50 questions. We will not time you, but you should try to answer quickly.";
             cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
             cout << "There is also no need to answer in the form of a question." << endl;
-            cout << "Please type 'y' when you are ready to begin." << endl;
+            cout << "Please type 'y' when you are ready to begin.";
             string begin;
             cin.ignore(); //prevents weird errors with getline
             getline(cin, begin);
             while (begin != "y")
             {
                 cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
+                getline(cin, begin);
             }
 
             unordered_map<string, Question> incorrect;
@@ -489,10 +507,13 @@ int main()
                  << setfill(' ') << setw(35) << "\n";
             cout << setfill('*') << setw(80) << "\n";
 
+            cout << "\n\nExit by typing 'exit' at any time.";
+            int qNum = 0; //holds the number of questions so far in the exam
             for (Question q : exam)
             {
-                cout << "\n\nExit by typing 'exit' at any time.\n\n";
-                cout << q.getQuestion() << endl;
+                cout << "\n\nCategory: " << q.getCategory() << endl;
+                cout << "Question: "
+                     << q.getQuestion() << endl;
                 cout << "Answer: ";
                 getline(cin, attempt);
                 if (attempt == "exit")
@@ -500,16 +521,16 @@ int main()
                     break;
                 }
                 gotIt = q.checkAnswer(attempt);
+                total++; //doing it individually avoids screwing up the scores if the user leaves early
+                qNum++;
                 if (gotIt)
                 {
                     right++;
                     correct++;
-                    total++; //doing it individually avoids screwing up the scores if the user leaves early
                 }
                 else
                 {
                     incorrect.emplace(attempt, q);
-                    total++;
                 }
             }
             cout << "\n"
@@ -517,7 +538,7 @@ int main()
             cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
                  << setfill(' ') << setw(36) << "\n";
             cout << setfill('*') << setw(80) << "\n";
-            cout << "Your score was: " << (right / 50.0) * 100 << "%"
+            cout << "Your score was: " << (right / (double)qNum) * 100 << "%"
                  << "\n";
             if (right < 50)
             {
@@ -531,14 +552,27 @@ int main()
                 }
                 if (choice == "y")
                 {
-                    cout << "You had " << 50 - right << " wrong answers.";
-                    cout << " They will be listed here in the same order as on the exam." << endl;
+                    cout << "You had " << qNum - right << " wrong answers out of " << qNum << " total.";
+                    cout << " They will be listed here in the same order as on the exam.\n";
                     for (auto it = incorrect.begin(); it != incorrect.end(); it++)
                     {
                         cout << "\nThe question was: " << it->second.getQuestion() << endl;
                         cout << "Your answer was: " << it->first << endl;
-                        cout << "The correct answer was: " << it->second.getAnswer() << "\n"
-                             << endl;
+                        cout << "The correct answer was: " << it->second.getAnswer() << "\n";
+                    }
+                    cout << "Did we mis-grade any questions? (y/n) ";
+                    string misGrade;
+                    getline(cin, misGrade);
+                    if (misGrade == "y")
+                    {
+                        cout << "\nHow many did we mis-grade? ";
+                        string fix;
+                        getline(cin, fix);
+                        if (stoi(fix) > 0)
+                        {
+                            correct += stoi(fix);
+                        }
+                        cout << "Sorry about that! Your scores have been fixed.\n";
                     }
                 }
             }
@@ -721,7 +755,7 @@ int main()
             }
             else
             {
-                cout << "No questions have been given this session! No update was performed.\n";
+                cout << "No questions have been answered this session! No update was performed.\n";
             }
         }
         else if (option == 8)
@@ -791,7 +825,7 @@ int main()
             }
             else
             {
-                cout << "No questions were given this session. Scores will not be updated." << endl;
+                cout << "No questions were answered this session. Scores will not be updated." << endl;
             }
             cout << "Bye!" << endl;
             running = false;

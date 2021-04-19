@@ -83,7 +83,7 @@ public:
     }
     bool checkAnswer(string attempt)
     {
-        if (attempt == "") //covers the edge case of an accidental submission
+        if (attempt == "" || attempt == " ") //covers the edge case of an accidental submission
         {
             return false;
         }
@@ -117,6 +117,10 @@ public:
     {
         return show_number;
     }
+    string getCategory()
+    {
+        return category;
+    }
     bool playFinal()
     {
         if (round == "Final Jeopardy!")
@@ -124,6 +128,7 @@ public:
             string attempt;
             cout << "\nThis question's category is: " << category << endl;
             cout << "The question is: " << question << endl;
+            cout << "What is your answer? ";
             getline(cin, attempt);
             return checkAnswer(attempt);
         }

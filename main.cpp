@@ -230,48 +230,55 @@ void mergeSort(vector<Question> &questions, int start, int end)
     }
 }
 
-void heapify(vector<Question> theheap, int index, int size) {
+void heapify(vector<Question> theheap, int index, int size)
+{
     int parent = index;
     int LC = (2 * parent) + 1;
     int RC = (2 * parent) + 2;
 
-
-    if(parent > (size-2)/2) {  //leaf node
+    if (parent > (size - 2) / 2)
+    { //leaf node
         //stop
         return;
     }
 
-    if(LC < size && RC < size) {
-        if(theheap[parent].getValue() < theheap[LC].getValue() && theheap[parent].getValue() < theheap[RC].getValue()) {
+    if (LC < size && RC < size)
+    {
+        if (theheap[parent].getValue() < theheap[LC].getValue() && theheap[parent].getValue() < theheap[RC].getValue())
+        {
             int temp;
-            if(max(theheap[LC].getValue(), theheap[RC].getValue()) == theheap[LC].getValue()){
+            if (max(theheap[LC].getValue(), theheap[RC].getValue()) == theheap[LC].getValue())
+            {
                 temp = LC;
             }
-            else {
+            else
+            {
                 temp = RC;
             }
             Question hold = theheap[parent];
             theheap[parent] = theheap[temp];
             theheap[temp] = hold;
             heapify(theheap, temp, size);
-
-
         }
-        else if(theheap[parent].getValue() < theheap[LC].getValue()) {
+        else if (theheap[parent].getValue() < theheap[LC].getValue())
+        {
             Question hold = theheap[parent];
             theheap[parent] = theheap[LC];
             theheap[LC] = hold;
             heapify(theheap, LC, size);
         }
-        else if(theheap[parent].getValue() < theheap[RC].getValue()) {
+        else if (theheap[parent].getValue() < theheap[RC].getValue())
+        {
             Question hold = theheap[parent];
             theheap[parent] = theheap[RC];
             theheap[RC] = hold;
             heapify(theheap, RC, size);
         }
     }
-    else if(LC < size) {
-        if(theheap[parent].getValue() < theheap[LC].getValue()) {
+    else if (LC < size)
+    {
+        if (theheap[parent].getValue() < theheap[LC].getValue())
+        {
             Question hold = theheap[parent];
             theheap[parent] = theheap[LC];
             theheap[LC] = hold;
@@ -280,14 +287,17 @@ void heapify(vector<Question> theheap, int index, int size) {
     }
 }
 
-void heapSort(vector<Question> &questions, vector<Question> sorted) {
+void heapSort(vector<Question> &questions, vector<Question> &sorted)
+{
     int size = questions.size();
     heapify(questions, 0, size);
 
-    while(!questions.empty()){
+    while (!questions.empty())
+    {
         sorted.push_back(questions[0]);
         questions[0] = questions[--size];
-        if(size > 0) {
+        if (size > 0)
+        {
             heapify(questions, 0, size);
         }
     }
@@ -715,25 +725,23 @@ int main()
             cout << "Questions successfully reset for the next sort." << endl;
 
             //heapSort
-            // start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+            start = chrono::high_resolution_clock::now(); //saves the time before heapsort
 
-            // vector<Question> sorted;
-            // heapSort(no_final, sorted);
+            vector<Question> sorted;
+            heapSort(no_final, sorted);
 
-            // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
-            // double heap_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            // heap_time *= 1e-9;
-            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << heap_time << setprecision(9)
-            //      << " seconds" << endl;
-            // no_final.clear(); //empties the sorted vector
-            // for (Question q : questions)
-            // {
-            //     if (q.getRound() != "Final Jeopardy!")
-            //     {
-            //         no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
-            //     }
-            // }
-            // cout << "Questions successfully reset for the next sort." << endl;
+            end = chrono::high_resolution_clock::now();                                         //saves the time after heapsort
+            double heap_time = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            heap_time *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using heapSort: " << fixed << heap_time << setprecision(9)
+                 << " seconds" << endl;
+
+            for (Question q : no_final)
+            {
+                cout << q.getValue() << "\n";
+            }
+            
+            no_final.clear(); //empties the sorted vector
         }
         else if (option == 6)
         {
@@ -843,7 +851,7 @@ int main()
             {
                 cout << "No questions were given this session. Scores will not be updated." << endl;
             }
-            cout << "Bye!" << endl;
+            cout << "Bye!\n\n";
             running = false;
         }
     }

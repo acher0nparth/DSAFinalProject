@@ -33,6 +33,17 @@ public:
         round = r;
         show_number = num;
     }
+    Question& operator = (const Question &t)
+    {
+        this -> category = t.category;
+        this -> air_date = t.air_date;
+        this -> question = t.question;
+        this -> value = t.value;
+        this -> answer = t.answer;
+        this -> round = t.round;
+        this -> show_number = t.show_number;
+        return *this;
+    }
     string getRound()
     {
         return round;

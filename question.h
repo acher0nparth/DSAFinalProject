@@ -27,7 +27,16 @@ public:
             }
         }
     };
-
+    Question()
+    {
+        category = "";
+        air_date = "";
+        question = "";
+        value = 0;
+        answer = "";
+        round = "";
+        show_number = "";
+    }
     Question(string c, string ad, string q, int v, string ans, string r, string num)
     {
         category = c;
@@ -63,7 +72,7 @@ public:
     bool checkAnswer(string attempt)
     {
         //put both strings to lowercase so the check is case insensitive
-        
+
         transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
         transform(attempt.begin(), attempt.end(), attempt.begin(), ::tolower);
         if (answer.find(attempt) == string::npos) //the attempt string is not found in the answer
@@ -84,6 +93,14 @@ public:
     string getAnswer()
     {
         return answer;
+    }
+    string getDate()
+    {
+        return air_date;
+    }
+    string getNum()
+    {
+        return show_number;
     }
     bool playFinal()
     {

@@ -178,6 +178,7 @@ void heapSort(vector<Question> &questions, vector<Question> &sorted)
     //     Question max = questions.back();
     //     sorted.push_back(max);
     //     questions.pop_back();
+    // }
 }
 
 void writeScore(string name, int correct, int total)
@@ -206,7 +207,7 @@ void writeScore(string name, int correct, int total)
             { //updating the record if the name exists
                 int n_correct = correct + stoi(row[1]);
                 int n_total = total + stoi(row[2]);
-                int n_percent = n_correct / n_total;
+                double n_percent = n_correct / n_total * 100;
                 fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
             }
             else
@@ -224,7 +225,7 @@ void writeScore(string name, int correct, int total)
         }
         else //if the row is empty, append the new data
         {
-            int percent = correct / total;
+            double percent = correct / total * 100;
             fout << name << ", " << correct << ", " << total << ", " << percent;
         }
     }
@@ -404,13 +405,14 @@ int main()
             cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
             cout << "There is also no need to answer in the form of a question." << endl;
             cout << "Please type 'y' when you are ready to begin." << endl;
-            cin.ignore();
             string begin;
+            cin.ignore(); //prevents weird errors with getline
             getline(cin, begin);
             while (begin != "y")
             {
                 cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
             }
+
             unordered_map<string, Question> incorrect;
             int right = 0;
             string attempt;
@@ -492,6 +494,7 @@ int main()
             cout << "Sorting questions using QuickSort..." << endl;
             quickSort(no_final, 0, no_final.size() - 1);
             cout << "Questions sorted! What dollar value of question would you like? ";
+            cin.ignore(); //prevents weird errors with getline
             string option = "1";
             while (stoi(option) % 200 != 0)
             {
@@ -525,12 +528,18 @@ int main()
                 }
             }
             int random = rand() % (only_final.size() - 1);
+            cout << "This Final Jeopardy! question aired on " << only_final[random].getDate()
+            << " for show number " << only_final[random].getNum();
+            cin.ignore();
             play(only_final[random], correct);
             total++;
         }
         else if (option == 4)
         {
             int random = rand() % (questions.size() - 1);
+            cout << "This question aired on " << questions[random].getDate()
+            << " for show number " << questions[random].getNum();
+            cin.ignore();
             play(questions[random], correct);
             total++;
         }
@@ -538,6 +547,7 @@ int main()
         {
             string option;
             cout << "Are you viewing your own score? (y/n) ";
+            cin.ignore(); //prevents weird errors with getline
             getline(cin, option);
             if (option == "y")
             {
@@ -609,6 +619,7 @@ int main()
         {
             string option, option2, option3;
             cout << "Would you like to reset scores for all users? (y/n) ";
+            cin.ignore(); //prevents weird errors with getline
             getline(cin, option);
             if (option == "y")
             {

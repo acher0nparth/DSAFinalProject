@@ -165,18 +165,16 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-// void heapSort(vector<Question> &questions, vector<Question> &sorted)
-// {
-//     make_heap(questions.begin(), questions.end());
+void heapSort(vector<Question> &questions, vector<Question> sorted) {
+    make_heap(questions.begin(), questions.end(), Question::HeapSwap());
 
-//     while (!questions.empty())
-//     {
-//         pop_heap(questions.begin(), questions.end());
-//         Question max = questions.back();
-//         sorted.push_back(max);
-//         questions.pop_back();
-//     }
-// }
+    while(!questions.empty()){
+        pop_heap(questions.begin(), questions.end());
+        Question max = questions.back();
+        sorted.push_back(max);
+        questions.pop_back();
+    }
+}
 
 void writeScore(string name, int correct, int total)
 {
@@ -363,7 +361,7 @@ int main()
     vector<Question> only_final; //only final Jeopardy! questions for option 3
 
     srand(time(NULL)); //seeds the random algorithm with the current time to make the questions appear more random
-    
+
     cout << "Loading Jeopardy! questions..." << endl;
     readFile(questions);
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;

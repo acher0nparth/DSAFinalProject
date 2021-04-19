@@ -7,10 +7,6 @@
 #include "json.hpp"
 #include <chrono>
 #include <bits/stdc++.h>
-#include <time.h>
-#include <unordered_set>
-#include <unordered_map>
-
 using namespace std;
 using json = nlohmann::json;
 
@@ -113,11 +109,11 @@ void readFile(vector<Question> &questions)
 int menu()
 {
     int option = -1;
-    cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice Jeopardy! Exam\n";
+    cout << "\nWelcome to the Jeopardy! Simulator\n1. Practice by Category\n";
     cout << "2. Practice by Dollar Amount\n3. Random Final Jeopardy\n";
     cout << "4. Random Question\n5. Scores\n6. Sorting Algorithm Performance\n7. Reset Scores\n8. Exit\n";
     cin >> option;
-    while (option > 8 || option < 1)
+    while (option > 7 || option < 1)
     {
         cout << "Please enter a valid menu selection!" << endl;
         cin >> option;
@@ -168,70 +164,18 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-void merge (vector<Question> &questions, int start, int mid, int end){
-    int n1 = mid - start + 1;
-    int n2 = end - mid;
+// void heapSort(vector<Question> &questions, vector<Question> sorted)
+// {
+//     make_heap(questions.begin(), questions.end());
 
-    vector<Question> x(n1);
-    vector<Question> y(n2);
-
-    for (int i = 0; i < n1; i++)
-        x[i] = questions[start + i];
-
-    for(int i = 0; i < n2; i ++)
-        y[i] = questions[(mid+1) +i];
-
-    int i = 0, j = 0, k = 0;
-
-    while (i < n1 && j < n2){
-        if (x[i].getValue() <= y[j].getValue()) {
-            questions[k] = x[i];
-            i++;
-        } else {
-            questions[k] = y[j];
-            j++;
-        }
-
-        k++;
-    }
-
-    while (i < n1) {
-        questions[k] = x[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        questions[k] = y[j];
-        j++;
-        k++;
-    }
-
-}
-
-void mergeSort (vector<Question> &questions, int start, int end) {
-    int mid;
-    if (start < end){
-        mid = (start + end) / 2;
-        mergeSort(questions, start, mid);
-        mergeSort(questions, mid+1, end);
-
-        merge(questions, start, mid, end);
-    }
-
-void heapSort(vector<Question> &questions, vector<Question> &sorted)
-{
-    // make_heap(questions.begin(), questions.end(), Question::HeapSwap());
-
-    // while (!questions.empty())
-    // {
-    //     pop_heap(questions.begin(), questions.end());
-    //     Question max = questions.back();
-    //     sorted.push_back(max);
-    //     questions.pop_back();
-    // }
-
-}
+//     while (!questions.empty())
+//     {
+//         pop_heap(questions.begin(), questions.end());
+//         Question max = questions.back();
+//         sorted.push_back(max);
+//         questions.pop_back();
+//     }
+// }
 
 void writeScore(string name, int correct, int total)
 {
@@ -259,7 +203,7 @@ void writeScore(string name, int correct, int total)
             { //updating the record if the name exists
                 int n_correct = correct + stoi(row[1]);
                 int n_total = total + stoi(row[2]);
-                double n_percent = n_correct / n_total * 100;
+                int n_percent = n_correct / n_total;
                 fout << name << ", " << n_correct << ", " << n_total << ", " << n_percent << endl;
             }
             else
@@ -277,7 +221,7 @@ void writeScore(string name, int correct, int total)
         }
         else //if the row is empty, append the new data
         {
-            double percent = correct / total * 100;
+            int percent = correct / total;
             fout << name << ", " << correct << ", " << total << ", " << percent;
         }
     }
@@ -334,7 +278,7 @@ void resetScores()
 {
     remove("scores.csv");
     fstream fout;
-    fout.open("scores.csv", ios::out);
+    fout.open("scores.csv", ios::in);
     fout.close();
 }
 bool resetScore(string name)
@@ -372,7 +316,6 @@ bool resetScore(string name)
                     fout << endl;
                 }
             }
-
             else
             {
                 found = true;
@@ -391,45 +334,17 @@ bool resetScore(string name)
     return found;
 }
 
-void play(Question q, int &numRight)
-{
-    bool correct = false;
-    if (q.getRound() == "Final Jeopardy!")
-    {
-        correct = q.playFinal();
-    }
-    else
-    {
-        correct = q.playNormal();
-    }
-    if (correct)
-    {
-        cout << "Correct! The full answer in our database was: " << q.getAnswer() << endl;
-        numRight++;
-    }
-    else
-    {
-        cout << "Oops! That wasn't quite right. The answer was: " << q.getAnswer() << endl;
-    }
-}
-  
 int main()
 {
-    vector<Question> questions;  //vector of all questions
-    vector<Question> no_final;   //vector of questions without final jeopardys because their values can't be sorted
-    vector<Question> only_final; //only final Jeopardy! questions for option 3
-    vector<Question> exam;       //vector to hold all the questions in the practice exam
-
-    srand(time(NULL)); //seeds the random algorithm with the current time to make the questions appears
-
+    vector<Question> questions; //vector of all questions
+    vector<Question> no_final;  //vector of questions without final jeopardys because their values can't be sorted
     cout << "Loading Jeopardy! questions..." << endl;
     readFile(questions);
     cout << "Successfully loaded all " << questions.size() << " Jeopardy! questions." << endl;
 
     string name; //holds the initials to track users
     cout << "Please enter your name for score tracking: ";
-    getline(cin, name);
-
+    cin >> name;
     transform(name.begin(), name.end(), name.begin(), ::toupper);
 
     int correct = 0, total = 0; //number of correct questions and total questions
@@ -441,171 +356,21 @@ int main()
 
         if (option == 1)
         {
-            exam.clear();
-            int random = 0;
-            unordered_set<int> indexes; //this is going ot be used to track the indexes so we don't get duplicates
-            while (indexes.size() < 50)
-            {
-                random = rand() % (questions.size() - 1);
-                if (indexes.find(random) == indexes.end())
-                {
-                    indexes.emplace(random);
-                    exam.push_back(questions[random]);
-                }
-            }
-            //printing out the instructions for the exam
-            cout << "You are about to take a practice Jeopardy! exam. This exam has the same format as the one "
-                 << "given to potential competitors on the show." << endl;
-            cout << "There are 50 questions. We will not time you, but you should try to answer quickly.";
-            cout << "On the real test you would have 15 seconds, and even less on the show, so keep it snappy!" << endl;
-            cout << "There is also no need to answer in the form of a question." << endl;
-            cout << "Please type 'y' when you are ready to begin." << endl;
-            string begin;
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, begin);
-            while (begin != "y")
-            {
-                cout << "Invalid selection! Please type 'y' when you are ready to begin" << endl;
-            }
-
-            unordered_map<string, Question> incorrect;
-            int right = 0;
-            string attempt;
-            bool gotIt = false;
-
-            cout << "\n"
-                 << setfill('*') << setw(80) << "\n";
-            cout << setfill(' ') << setw(35) << "\n\n\nEXAM START\n\n\n"
-                 << setfill(' ') << setw(35) << "\n";
-            cout << setfill('*') << setw(80) << "\n";
-
-            for (Question q : exam)
-            {
-                cout << "\n\nExit by typing 'exit' at any time.\n\n";
-                cout << q.getQuestion() << endl;
-                cout << "Answer: ";
-                getline(cin, attempt);
-                if (attempt == "exit")
-                {
-                    break;
-                }
-                gotIt = q.checkAnswer(attempt);
-                if (gotIt)
-                {
-                    right++;
-                    correct++;
-                    total++; //doing it individually avoids screwing up the scores if the user leaves early
-                }
-                else
-                {
-                    incorrect.emplace(attempt, q);
-                    total++;
-                }
-            }
-            cout << "\n"
-                 << setfill('*') << setw(80) << "\n";
-            cout << setfill(' ') << setw(36) << "\n\n\nEXAM END\n\n\n"
-                 << setfill(' ') << setw(36) << "\n";
-            cout << setfill('*') << setw(80) << "\n";
-            cout << "Your score was: " << (right / 50.0) * 100 << "%"
-                 << "\n";
-            if (right < 50)
-            {
-                cout << "Would you like to go over your wrong answers? (y/n) ";
-                string choice;
-                getline(cin, choice);
-                while (choice != "y" && choice != "n")
-                {
-                    cout << "\nInvalid choice! Please enter 'y' or 'n'. ";
-                    getline(cin, choice);
-                }
-                if (choice == "y")
-                {
-                    cout << "You had " << 50 - right << " wrong answers.";
-                    cout << " They will be listed here in the same order as on the exam." << endl;
-                    for (auto it = incorrect.begin(); it != incorrect.end(); it++)
-                    {
-                        cout << "\nThe question was: " << it->second.getQuestion() << endl;
-                        cout << "Your answer was: " << it->first << endl;
-                        cout << "The correct answer was: " << it->second.getAnswer() << "\n"
-                             << endl;
-                    }
-                }
-            }
         }
         else if (option == 2)
         {
-            no_final.clear();
-            cout << "Removing unusable Final Jeopardy! questions..." << endl;
-            for (Question q : questions)
-            {
-                if (q.getRound() != "Final Jeopardy!") //populating the vector without final jeopardy questions
-                {
-                    no_final.push_back(q);
-                }
-            }
-            cout << "Final Jeopardy! questions removed." << endl;
-
-            cout << "Sorting questions using QuickSort..." << endl;
-            quickSort(no_final, 0, no_final.size() - 1);
-            cout << "Questions sorted! What dollar value of question would you like? ";
-            cin.ignore(); //prevents weird errors with getline
-            string option = "1";
-            while (stoi(option) % 200 != 0)
-            {
-                getline(cin, option);
-                if (stoi(option) % 200 != 0)
-                {
-                    cout << "\nInvalid number! The numbers are in $200 increments from $200 - $2000."
-                         << " Please enter a new selection: ";
-                }
-            }
-            bool going = true;
-            while (going) //this should get a random question of the specified value
-            {
-                int random = rand() % (no_final.size() - 1);
-                Question q = no_final[random];
-                if (q.getValue() == stoi(option))
-                {
-                    play(q, correct);
-                    total++;
-                    going = false;
-                }
-            }
         }
         else if (option == 3)
         {
-            for (Question q : questions)
-            {
-                if (q.getRound() == "Final Jeopardy!")
-                {
-                    only_final.push_back(q);
-                }
-            }
-            int random = rand() % (only_final.size() - 1);
-            cout << "This Final Jeopardy! question aired on " << only_final[random].getDate()
-            << " for show number " << only_final[random].getNum();
-            cin.ignore();
-            play(only_final[random], correct);
-            total++;
         }
         else if (option == 4)
         {
-            int random = rand() % (questions.size() - 1);
-            cout << "This question aired on " << questions[random].getDate()
-            << " for show number " << questions[random].getNum();
-            cin.ignore();
-            play(questions[random], correct);
-            total++;
         }
         else if (option == 5)
         {
             string option;
             cout << "Are you viewing your own score? (y/n) ";
-
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, option);
-
+            cin >> option;
             if (option == "y")
             {
                 cout << "Please note: These scores will not include statistics from this session." << endl;
@@ -614,14 +379,12 @@ int main()
             else
             {
                 cout << "Whose score would you like to view? ";
-
-                getline(cin, option);
+                cin >> option;
                 readScore(option); //pulls up the specified user's score
             }
         }
         else if (option == 6)
         {
-            no_final.clear();
             cout << "Removing unsortable Final Jeopardy! questions..." << endl;
             for (Question q : questions)
             {
@@ -653,38 +416,35 @@ int main()
             cout << "Questions successfully reset for the next sort." << endl;
 
             //heapSort
-            // start = chrono::high_resolution_clock::now(); //saves the time before heapsort
+            start = chrono::high_resolution_clock::now(); //saves the time before heapsort
 
-            // vector<Question> sorted;
-            // heapSort(no_final, sorted);
+            vector<Question> sorted;
+            heapSort(no_final, sorted);
 
-            // end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
-            // time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
-            // time_taken *= 1e-9;
-            // cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
-            //      << " seconds" << endl;
-            // no_final.clear(); //empties the sorted vector
-            // for (Question q : questions)
-            // {
-            //     if (q.getRound() != "Final Jeopardy!")
-            //     {
-            //         no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
-            //     }
-            // }
-            // cout << "Questions successfully reset for the next sort." << endl;
+            end = chrono::high_resolution_clock::now();                                   //saves the time after heapsort
+            time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count(); //time between start and end
+            time_taken *= 1e-9;
+            cout << "\nTime to sort questions by dollar value using QuickSort: " << fixed << time_taken << setprecision(9)
+                 << " seconds" << endl;
+            no_final.clear(); //empties the sorted vector
+            for (Question q : questions)
+            {
+                if (q.getRound() != "Final Jeopardy!")
+                {
+                    no_final.push_back(q); //repopulating the vector so it is the same as it was pre-sort
+                }
+            }
+            cout << "Questions successfully reset for the next sort." << endl;
         }
         else if (option == 7)
         {
             string option, option2, option3;
             cout << "Would you like to reset scores for all users? (y/n) ";
-
-            cin.ignore(); //prevents weird errors with getline
-            getline(cin, option);
+            cin >> option;
             if (option == "y")
             {
                 cout << "Are you sure? This cannot be undone! (y/n) ";
-                getline(cin, option2);
-
+                cin >> option2;
                 if (option2 == "y")
                 {
                     cout << "Resetting scores..." << endl;
@@ -692,14 +452,10 @@ int main()
                     cout << "Scores successfully reset." << endl;
                 }
             }
-            else if (option == "n")
-            {
-                continue;
-            }
             else
             {
                 cout << "Are you erasing your own scores? (y/n) ";
-                getline(cin, option2);
+                cin >> option2;
                 if (option2 == "y")
                 {
                     cout << "Resetting your scores..." << endl;
@@ -716,7 +472,7 @@ int main()
                 else
                 {
                     cout << "Whose scores would you like to reset? ";
-                    getline(cin, option3);
+                    cin >> option3;
                     cout << "Resetting scores for " << name << "..." << endl;
                     bool found = resetScore(option3);
                     if (found)
@@ -725,7 +481,6 @@ int main()
                     }
                     else if (!found)
                     {
-
                         cout << "No scores found for " << option3 << ". No reset was performed." << endl;
                     }
                 }

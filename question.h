@@ -13,6 +13,21 @@ class Question
     string show_number;
 
 public:
+    struct HeapSwap
+    {
+        bool operator()(Question a, Question b)
+        {
+            if (a.getValue() < b.getValue())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    };
+
     Question()
     {
         category = "";
@@ -65,5 +80,54 @@ public:
     string getQuestion()
     {
         return question;
+    }
+    bool checkAnswer(string attempt)
+    {
+        //put both strings to lowercase so the check is case insensitive
+
+        transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
+        transform(attempt.begin(), attempt.end(), attempt.begin(), ::tolower);
+        if (answer.find(attempt) == string::npos) //the attempt string is not found in the answer
+            return false;
+        else
+            return true;
+    }
+    bool playNormal()
+    {
+        string attempt;
+        cout << "\nThis is a " << round << " question!" << endl;
+        cout << "This question's category is: " << category << endl;
+        cout << "For $" << value << ", " << question << endl;
+        cout << "What is your answer? ";
+        getline(cin, attempt);
+        return checkAnswer(attempt);
+    }
+    string getAnswer()
+    {
+        return answer;
+    }
+    string getDate()
+    {
+        return air_date;
+    }
+    string getNum()
+    {
+        return show_number;
+    }
+    bool playFinal()
+    {
+        if (round == "Final Jeopardy!")
+        {
+            string attempt;
+            cout << "\nThis question's category is: " << category << endl;
+            cout << "The question is: " << question << endl;
+            getline(cin, attempt);
+            return checkAnswer(attempt);
+        }
+        else
+        {
+            cout << "This question isn't a final Jeopardy! Mx. Programmer! Fix your code :D" << endl;
+            return false;
+        }
     }
 };

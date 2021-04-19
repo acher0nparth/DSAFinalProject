@@ -164,20 +164,16 @@ void quickSort(vector<Question> &questions, int left, int right)
     }
 }
 
-// void heapSort(vector<Question> &questions, vector<Question> sorted)
-// {
-//     //int size = questions.size();
-//     make_heap(questions.begin(), questions.end());
+void heapSort(vector<Question> &questions, vector<Question> sorted) {
+    make_heap(questions.begin(), questions.end(), HeapSwap());
 
-//     while (!questions.empty())
-//     {
-//         Question max = questions.front();
-//         pop_heap(questions.begin(), questions.end());
-//         sorted.push_back(max);
-//     }
-
-//     //return sorted;
-// }
+    while(!questions.empty()){
+        pop_heap(questions.begin(), questions.end());
+        Question max = questions.back();
+        sorted.push_back(max);
+        questions.pop_back();
+    }
+}
 
 void writeScore(string name, int correct, int total)
 {

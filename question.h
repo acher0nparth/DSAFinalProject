@@ -62,6 +62,10 @@ public:
     }
     bool checkAnswer(string attempt)
     {
+        //put both strings to lowercase so the check is case insensitive
+        
+        transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
+        transform(attempt.begin(), attempt.end(), attempt.begin(), ::tolower);
         if (answer.find(attempt) == string::npos) //the attempt string is not found in the answer
             return false;
         else
@@ -74,7 +78,7 @@ public:
         cout << "This question's category is: " << category << endl;
         cout << "For $" << value << ", " << question << endl;
         cout << "What is your answer? ";
-        cin >> attempt;
+        getline(cin, attempt);
         return checkAnswer(attempt);
     }
     string getAnswer()
@@ -88,7 +92,7 @@ public:
             string attempt;
             cout << "\nThis question's category is: " << category << endl;
             cout << "The question is: " << question << endl;
-            cin >> attempt;
+            getline(cin, attempt);
             return checkAnswer(attempt);
         }
         else

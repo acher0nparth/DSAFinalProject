@@ -1,0 +1,1 @@
+transform(name.begin(), name.end(), name.begin(), ::toupper);

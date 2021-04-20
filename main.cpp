@@ -839,9 +839,6 @@ int main()
                     }
                 }
             }
-            else
-            {
-            }
         }
         else if (option == 9)
         {
